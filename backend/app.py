@@ -2,18 +2,20 @@ import json
 import os
 from flask import Flask, render_template, request
 from flask_cors import CORS
+from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 import pandas as pd
 
-# Set the ROOT_PATH for linking files
-os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
+# ROOT_PATH for linking with all your files. 
+# Feel free to use a config.py or settings.py with a global export variable
+os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
 
 # Get the directory of the current script
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
-# Specify the path to the new JSON file containing flavors
+# Specify the path to the JSON file relative to the current script
 json_file_path = os.path.join(current_directory, 'init.json')
 
-# Load the JSON data and create a DataFrame using the 'flavors' key
+# Assuming your JSON data is stored in a file named 'init.json'
 with open(json_file_path, 'r') as file:
     data = json.load(file)
     flavors_df = pd.DataFrame(data['flavors'])
@@ -21,27 +23,22 @@ with open(json_file_path, 'r') as file:
 app = Flask(__name__)
 CORS(app)
 
-# Search function: filters based solely on the flavor 'title'
+# Sample search using json with pandas
 def json_search(query):
-    # If no query provided, you can choose to return all records or an empty list.
-    if query:
-        # Use case-insensitive matching to filter the 'title' field
-        matches = flavors_df[flavors_df['title'].str.lower().str.contains(query.lower())]
-    else:
-        matches = flavors_df
-    # Select the desired columns for the response
-    matches_filtered = matches[['title', 'subhead', 'description', 'rating']]
-    return matches_filtered.to_json(orient='records')
+    matches = []
+    matches = flavors_df[flavors_df['title'].str.lower().str.contains(query.lower())]
+    matches_filtered = matches[['title', 'description', 'rating']]
+    matches_filtered_json = matches_filtered.to_json(orient='records')
+    return matches_filtered_json
 
 @app.route("/")
 def home():
-    return render_template('base.html', title="Sample HTML")
+    return render_template('base.html',title="sample html")
 
-@app.route("/flavors")
-def flavors_search():
-    # Get the query parameter 'title'
-    query = request.args.get("title", "")
-    return json_search(query)
+@app.route("/episodes")
+def episodes_search():
+    text = request.args.get("title")
+    return json_search(text)
 
 if 'DB_NAME' not in os.environ:
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(debug=True,host="0.0.0.0",port=5000)

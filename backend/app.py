@@ -27,7 +27,7 @@ CORS(app)
 def json_search(query):
     matches = []
     matches = flavors_df[flavors_df['title'].str.lower().str.contains(query.lower())]
-    matches_filtered = matches[['title', 'description', 'rating']]
+    matches_filtered = matches[['title']]
     matches_filtered_json = matches_filtered.to_json(orient='records')
     return matches_filtered_json
 

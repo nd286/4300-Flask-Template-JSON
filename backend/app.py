@@ -11,7 +11,7 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
 # Specify the path to the new JSON file with flavors
-json_file_path = os.path.join(current_directory, 'init.json')
+json_file_path = os.path.join(current_directory, 'new_flavors.json')
 
 # Load the JSON data from the file and create a DataFrame
 with open(json_file_path, 'r') as file:

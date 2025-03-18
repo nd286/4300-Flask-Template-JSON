@@ -35,10 +35,10 @@ def json_search(query):
 def home():
     return render_template('base.html',title="sample html")
 
-@app.route("/flavors")
-def flavors_search():
-    query = request.args.get("title", "")
-    return json_search(query)
+@app.route("/episodes")
+def episodes_search():
+    text = request.args.get("title")
+    return json_search(text)
 
 if 'DB_NAME' not in os.environ:
     app.run(debug=True,host="0.0.0.0",port=5000)

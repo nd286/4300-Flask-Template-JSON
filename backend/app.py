@@ -11,23 +11,24 @@ from cosine_similarity import (
     index_search
 )
 
+# Set ROOT_PATH for linking with all your files.
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
+
+# Get the directory of the current script.
 current_directory = os.path.dirname(os.path.abspath(__file__))
 json_file_path = os.path.join(current_directory, 'init.json')
 
-# Load JSON data into a DataFrame
+# Load JSON data from init.json and create a DataFrame from the "flavors" key.
 with open(json_file_path, 'r') as file:
     data = json.load(file)
     flavors_df = pd.DataFrame(data['flavors'])
 
-# Convert DataFrame to list of docs
+# Convert DataFrame to a list of document dictionaries.
 docs = flavors_df.to_dict(orient='records')
 n_docs = len(docs)
 
-# Build the inverted index from 'description'
+# Build an inverted index from the "description" field.
 inv_index = build_inverted_index(docs)
-
-# Compute IDF and doc norms
 idf = compute_idf(inv_index, n_docs, min_df=1, max_df_ratio=1.0)
 doc_norms = compute_doc_norms(inv_index, idf, n_docs)
 
@@ -36,34 +37,38 @@ CORS(app)
 
 def json_search(query):
     if query:
-        # Perform cosine similarity search
+        # Perform cosine similarity search using the query against document descriptions.
         results = index_search(query, docs, inv_index, idf, doc_norms)
-        # Keep only docs with score > 0
-        sorted_docs = [docs[doc_id] for (score, doc_id) in results if score > 0]
+        # results is a list of (score, doc_id) tuples sorted by descending score.
+        out = []
+        seen = set()
+        for score, doc_id in results:
+            if score > 0:
+                doc = docs[doc_id]
+                key = (doc.get('title', ''), doc.get('description', ''))
+                if key not in seen:
+                    seen.add(key)
+                    out.append({
+                        "title": doc["title"],
+                        "description": doc["description"],
+                        "rating": doc.get("rating", 0),
+                        "score": score  # Include the cosine similarity score
+                    })
     else:
-        # No query => return all docs
-        sorted_docs = docs
-
-    # Remove duplicates if needed
-    unique_docs = []
-    seen = set()
-    for d in sorted_docs:
-        key = (d.get('title', ''), d.get('description', ''))
-        if key not in seen:
-            seen.add(key)
-            unique_docs.append(d)
-
-    # Format as JSON
-    # Return only the fields you want to expose
-    output = [
-        {
-            "title": doc["title"],
-            "description": doc["description"],
-            "rating": doc.get("rating", 0)
-        }
-        for doc in unique_docs
-    ]
-    return json.dumps(output)
+        # If no query is provided, return all docs with a default score (e.g., 0).
+        out = []
+        seen = set()
+        for doc in docs:
+            key = (doc.get('title', ''), doc.get('description', ''))
+            if key not in seen:
+                seen.add(key)
+                out.append({
+                    "title": doc["title"],
+                    "description": doc["description"],
+                    "rating": doc.get("rating", 0),
+                    "score": 0
+                })
+    return json.dumps(out)
 
 @app.route("/")
 def home():

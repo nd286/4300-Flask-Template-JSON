@@ -22,12 +22,15 @@ with open(json_file_path, 'r') as file:
 app = Flask(__name__)
 CORS(app)
 
-# Search function: filters the DataFrame by "title" (case-insensitive) and returns selected fields.
+# Search function: filters by the "title" (case-insensitive), then drops duplicate pairs of title and description.
 def json_search(query):
     if query:
         matches = flavors_df[flavors_df['title'].str.lower().str.contains(query.lower())]
     else:
         matches = flavors_df
+    # Remove duplicate entries based on title and description
+    matches = matches.drop_duplicates(subset=['title', 'description'])
+    # Select only the fields to return
     matches_filtered = matches[['title', 'description', 'rating']]
     return matches_filtered.to_json(orient='records')
 
@@ -40,5 +43,7 @@ def flavors_search():
     text = request.args.get("title", "")
     return json_search(text)
 
-if 'DB_NAME' not in os.environ:
-    app.run(debug=True, host="0.0.0.0", port=5000)
+if __name__ == '__main__':
+    if 'DB_NAME' not in os.environ:
+        app.run(debug=True, host="0.0.0.0", port=5000)
+

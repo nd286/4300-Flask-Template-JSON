@@ -7,6 +7,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap" rel="stylesheet">
     <style>
+        body {
+        background-image: url("{{ url_for('static', filename='images/background.jpg') }}");
+        background-size: cover; /* Ensures the image covers the full page */
+        background-position: center; /* Centers the image */
+        background-repeat: no-repeat; /* Prevents tiling */
+        }
         .google-colors h1 {
             font-size: 60px; 
         }

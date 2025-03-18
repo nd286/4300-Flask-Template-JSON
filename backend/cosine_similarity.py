@@ -10,7 +10,6 @@ def tokenize(text: str) -> List[str]:
     No NLTK needed.
     """
     text = text.lower()
-    # Replace any sequence of non-alphanumeric characters with a space.
     text = re.sub(r'[^a-z0-9]+', ' ', text)
     tokens = text.split()
     return tokens
@@ -45,7 +44,6 @@ def compute_idf(inv_index: Dict[str, List[Tuple[int, int]]], n_docs: int,
         df = len(postings)
         if df < min_df or (df / n_docs) > max_df_ratio:
             continue
-        # IDF with log base 2
         idf[term] = math.log2(n_docs / df)
     return idf
 
@@ -61,7 +59,6 @@ def compute_doc_norms(inv_index: Dict[str, List[Tuple[int, int]]],
         if term in idf:
             weight = idf[term]
             for doc_id, count in postings:
-                # Accumulate squared weight for doc_id
                 norms[doc_id] += (count * weight) ** 2
     return np.sqrt(norms)
 
@@ -90,21 +87,17 @@ def index_search(query: str,
     Compute cosine similarity for 'query' against each document's 'description'.
     Returns a sorted list of (score, doc_id) by descending score.
     """
-    # Tokenize and count terms in the query
     tokens = tokenize(query)
     query_counts = Counter(tokens)
 
-    # Compute the dot products for all docs
     dot_scores = accumulate_dot_scores(query_counts, inv_index, idf)
 
-    # Compute the query's norm
     query_norm_sq = 0.0
     for term, q_count in query_counts.items():
         if term in idf:
             query_norm_sq += (q_count * idf[term]) ** 2
     query_norm = math.sqrt(query_norm_sq)
 
-    # Compute cosine similarity
     results = []
     for doc_id, dot in dot_scores.items():
         if doc_norms[doc_id] > 0 and query_norm > 0:
@@ -113,6 +106,5 @@ def index_search(query: str,
             cos_sim = 0
         results.append((cos_sim, doc_id))
 
-    # Sort by highest score first
     results.sort(key=lambda x: x[0], reverse=True)
     return results

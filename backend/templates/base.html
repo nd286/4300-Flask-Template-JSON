@@ -37,9 +37,10 @@
     </div>
 
     <script>
-        function answerBoxTemplate(title, description, rating) {
+        // Updated template: now accepts score and displays it next to the title.
+        function answerBoxTemplate(title, score, description, rating) {
             return `<div class=''>
-                <h3 class='episode-title'>${title}</h3>
+                <h3 class='episode-title'>${title} (Score: ${score.toFixed(2)})</h3>
                 <p class='episode-desc'>${description}</p>
                 <p class='episode-rating'>Rating: ${rating}</p>
             </div>`;
@@ -56,10 +57,12 @@
             .then(response => response.json())
             .then(data => data.forEach(row => {
                 let tempDiv = document.createElement("div");
-                tempDiv.innerHTML = answerBoxTemplate(row.title, row.description, row.rating);
+                // Pass row.score along with the other fields.
+                tempDiv.innerHTML = answerBoxTemplate(row.title, row.score, row.description, row.rating);
                 document.getElementById("answer-box").appendChild(tempDiv);
             }));
         }
     </script>
 </body>
 </html>
+

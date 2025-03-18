@@ -11,23 +11,18 @@ from cosine_similarity import (
     index_search
 )
 
-# Set ROOT_PATH for linking with all your files.
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 
-# Get the directory of the current script.
 current_directory = os.path.dirname(os.path.abspath(__file__))
 json_file_path = os.path.join(current_directory, 'init.json')
 
-# Load JSON data from init.json and create a DataFrame from the "flavors" key.
 with open(json_file_path, 'r') as file:
     data = json.load(file)
     flavors_df = pd.DataFrame(data['flavors'])
 
-# Convert DataFrame to a list of document dictionaries.
 docs = flavors_df.to_dict(orient='records')
 n_docs = len(docs)
 
-# Build an inverted index from the "description" field.
 inv_index = build_inverted_index(docs)
 idf = compute_idf(inv_index, n_docs, min_df=1, max_df_ratio=1.0)
 doc_norms = compute_doc_norms(inv_index, idf, n_docs)
@@ -37,9 +32,7 @@ CORS(app)
 
 def json_search(query):
     if query:
-        # Perform cosine similarity search using the query against document descriptions.
         results = index_search(query, docs, inv_index, idf, doc_norms)
-        # results is a list of (score, doc_id) tuples sorted by descending score.
         out = []
         seen = set()
         for score, doc_id in results:
@@ -52,10 +45,9 @@ def json_search(query):
                         "title": doc["title"],
                         "description": doc["description"],
                         "rating": doc.get("rating", 0),
-                        "score": score  # Include the cosine similarity score
+                        "score": score  
                     })
     else:
-        # If no query is provided, return all docs with a default score (e.g., 0).
         out = []
         seen = set()
         for doc in docs:

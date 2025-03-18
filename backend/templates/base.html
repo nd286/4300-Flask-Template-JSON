@@ -6,6 +6,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap" rel="stylesheet">
+    <style>
+        /* Make Dairy Godmothers font smaller */
+        .google-colors h1 {
+            font-size: 20px; /* Adjust this value as needed */
+        }
+    </style>
 </head>
 <body>
     <div class="full-body-container">
@@ -37,7 +43,6 @@
     </div>
 
     <script>
-        // Updated template: now accepts score and displays it next to the title.
         function answerBoxTemplate(title, score, description, rating) {
             return `<div class=''>
                 <h3 class='episode-title'>${title} (Score: ${score.toFixed(2)})</h3>
@@ -57,7 +62,6 @@
             .then(response => response.json())
             .then(data => data.forEach(row => {
                 let tempDiv = document.createElement("div");
-                // Pass row.score along with the other fields.
                 tempDiv.innerHTML = answerBoxTemplate(row.title, row.score, row.description, row.rating);
                 document.getElementById("answer-box").appendChild(tempDiv);
             }));
@@ -65,4 +69,5 @@
     </script>
 </body>
 </html>
+
 

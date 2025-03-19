@@ -3,6 +3,19 @@ body {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    position: relative;
+}
+
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.5); /* Adjust opacity (0 = fully transparent, 1 = opaque) */
+    backdrop-filter: blur(5px); /* Optional: Adds a subtle blur effect */
+    z-index: -1;
 }
 
 .full-body-container{

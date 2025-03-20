@@ -1,12 +1,18 @@
 import json
 import os
-import math
 from flask import Flask, render_template, request
 from flask_cors import CORS
 import pandas as pd
-from cosine_similarity import tokenize, build_inverted_index, compute_idf, compute_doc_norms, compute_combined_score
+
+from cosine_similarity import (
+    build_inverted_index,
+    compute_idf,
+    compute_doc_norms,
+    index_search
+)
 
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
+
 current_directory = os.path.dirname(os.path.abspath(__file__))
 json_file_path = os.path.join(current_directory, 'init.json')
 
@@ -15,87 +21,47 @@ with open(json_file_path, 'r') as file:
     flavors_df = pd.DataFrame(data['flavors'])
 
 docs = flavors_df.to_dict(orient='records')
+n_docs = len(docs)
 
-unique_flavors = {}
-for doc in docs:
-    title = doc.get("title", "").strip()
-    if title not in unique_flavors:
-        unique_flavors[title] = {
-            "title": title,
-            "description": doc.get("description", ""),
-            "texts": [], 
-            "rating": doc.get("rating", 0)
-        }
-    text_field = doc.get("text", "")
-    if text_field.strip():
-        unique_flavors[title]["texts"].append(text_field)
-
-corpus = []
-for flavor in unique_flavors.values():
-    combined = flavor.get("description", "")
-    for text in flavor.get("texts", []):
-        combined += " " + text
-    corpus.append(combined)
-
-inv_index = {}
-for doc_id, text in enumerate(corpus):
-    tokens = tokenize(text)
-    counts = {}
-    for token in tokens:
-        counts[token] = counts.get(token, 0) + 1
-    for token, count in counts.items():
-        if token not in inv_index:
-            inv_index[token] = []
-        inv_index[token].append((doc_id, count))
-n_docs = len(corpus)
-
-idf = {}
-for term, postings in inv_index.items():
-    if len(postings) >= 1 and (len(postings)/n_docs) <= 1.0:
-        idf[term] = math.log2(n_docs / len(postings))
-
-doc_norms = [0.0] * n_docs
-for term, postings in inv_index.items():
-    if term in idf:
-        w = idf[term]
-        for doc_id, count in postings:
-            doc_norms[doc_id] += (count * w) ** 2
-doc_norms = [math.sqrt(x) for x in doc_norms]
+inv_index = build_inverted_index(docs)
+idf = compute_idf(inv_index, n_docs, min_df=1, max_df_ratio=1.0)
+doc_norms = compute_doc_norms(inv_index, idf, n_docs)
 
 app = Flask(__name__)
 CORS(app)
 
-def json_search(query: str) -> str:
-    scored_flavors = []
+def json_search(query):
     if query:
-
-        for flavor in unique_flavors.values():
-            score = compute_combined_score(query,
-                                           flavor.get("description", ""),
-                                           flavor.get("texts", []),
-                                           idf)
-            if score > 0:
-                scored_flavors.append((score, flavor))
-
-        scored_flavors.sort(key=lambda x: x[0], reverse=True)
+        results = index_search(query, docs, inv_index, idf, doc_norms)
         out = []
-        for score, flavor in scored_flavors[:10]:
-            out.append({
-                "title": flavor["title"],
-                "description": flavor.get("description", ""),
-                "rating": flavor.get("rating", 0),
-                "score": score
-            })
+        seen = set()
+        for score, doc_id in results:
+            if score > 0:
+                doc = docs[doc_id]
+                key = (doc.get('title', ''), doc.get('description', ''))
+                if key not in seen:
+                    seen.add(key)
+                    out.append({
+                        "title": doc["title"],
+                        "description": doc["description"],
+                        "rating": doc.get("rating", 0),
+                        "score": score  
+                    })
     else:
         out = []
-        for flavor in list(unique_flavors.values())[:10]:
-            out.append({
-                "title": flavor["title"],
-                "description": flavor.get("description", ""),
-                "rating": flavor.get("rating", 0),
-                "score": 0
-            })
-    return json.dumps(out)
+        seen = set()
+        for doc in docs:
+            key = (doc.get('title', ''), doc.get('description', ''))
+            if key not in seen:
+                seen.add(key)
+                out.append({
+                    "title": doc["title"],
+                    "description": doc["description"],
+                    "rating": doc.get("rating", 0),
+                    "score": 0
+                })
+
+    return json.dumps(out[:10])
 
 @app.route("/")
 def home():
@@ -103,8 +69,8 @@ def home():
 
 @app.route("/flavors")
 def flavors_search():
-    query = request.args.get("title", "")
-    return json_search(query)
+    text = request.args.get("title", "")
+    return json_search(text)
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)

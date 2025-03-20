@@ -1,10 +1,16 @@
 import json
 import os
+import math
 from flask import Flask, render_template, request
 from flask_cors import CORS
 import pandas as pd
-import math
-from cosine_similarity import compute_combined_score
+from cosine_similarity import (
+    tokenize,
+    build_inverted_index,
+    compute_idf,
+    compute_doc_norms,
+    compute_combined_score
+)
 
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -30,21 +36,56 @@ for doc in docs:
     if review_text.strip():
         unique_flavors[title]["reviews"].append(review_text)
 
+corpus = []
+for flavor in unique_flavors.values():
+    combined = flavor.get("description", "")
+    for review in flavor.get("reviews", []):
+        combined += " " + review
+    corpus.append(combined)
+
+msgs = [{"text": text} for text in corpus]
+inv_index = {}
+for doc_id, msg in enumerate(msgs):
+    tokens = tokenize(msg.get("text", ""))
+    token_counts = {}
+    for token in tokens:
+        token_counts[token] = token_counts.get(token, 0) + 1
+    for token, count in token_counts.items():
+        if token not in inv_index:
+            inv_index[token] = []
+        inv_index[token].append((doc_id, count))
+n_docs = len(msgs)
+
+idf = {}
+for term, postings in inv_index.items():
+    if len(postings) >= 1 and (len(postings)/n_docs) <= 0.9:
+        idf[term] = math.log(n_docs / (len(postings) + 1), 2)
+
+doc_norms = [0.0] * n_docs
+for term, postings in inv_index.items():
+    if term in idf:
+        w = idf[term]
+        for doc_id, count in postings:
+            doc_norms[doc_id] += (count * w) ** 2
+doc_norms = [math.sqrt(x) for x in doc_norms]
+
 app = Flask(__name__)
 CORS(app)
 
-def json_search(query):
-    out = []
+def json_search(query: str) -> str:
+    scored_flavors = []
     if query:
-        scored_flavors = []
         for flavor in unique_flavors.values():
             score = compute_combined_score(query,
                                            flavor.get("description", ""),
-                                           flavor.get("reviews", []))
+                                           flavor.get("reviews", []),
+                                           idf)
             if score > 0:
                 scored_flavors.append((score, flavor))
+
         scored_flavors.sort(key=lambda x: x[0], reverse=True)
-        for score, flavor in scored_flavors:
+        out = []
+        for score, flavor in scored_flavors[:10]:
             out.append({
                 "title": flavor["title"],
                 "description": flavor.get("description", ""),
@@ -52,14 +93,15 @@ def json_search(query):
                 "score": score
             })
     else:
-        for flavor in unique_flavors.values():
+        out = []
+        for flavor in list(unique_flavors.values())[:10]:
             out.append({
                 "title": flavor["title"],
                 "description": flavor.get("description", ""),
                 "rating": flavor.get("rating", 0),
                 "score": 0
             })
-    return json.dumps(out[:10])
+    return json.dumps(out)
 
 @app.route("/")
 def home():
@@ -67,11 +109,12 @@ def home():
 
 @app.route("/flavors")
 def flavors_search():
-    text = request.args.get("title", "")
-    return json_search(text)
+    query = request.args.get("title", "")
+    return json_search(query)
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)
+
 
 
 

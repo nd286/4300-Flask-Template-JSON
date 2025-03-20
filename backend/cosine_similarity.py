@@ -1,100 +1,40 @@
 import math
-import re
-import numpy as np
-from collections import defaultdict, Counter
-from typing import List, Tuple, Dict
+from typing import List, Dict
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
-def tokenize(text: str) -> List[str]:
+def build_vectorizer(corpus: List[str]) -> TfidfVectorizer:
     """
-    A simple tokenizer that lowercases and splits on non-alphanumeric characters.
+    Build and fit a TfidfVectorizer on the given corpus.
     """
-    text = text.lower()
-    text = re.sub(r'[^a-z0-9]+', ' ', text)
-    tokens = text.split()
-    return tokens
+    vectorizer = TfidfVectorizer(stop_words='english')
+    vectorizer.fit(corpus)
+    return vectorizer
 
-def build_inverted_index(docs: List[Dict]) -> Dict[str, List[Tuple[int, int]]]:
+def compute_cosine_similarity(query: str, text: str, vectorizer: TfidfVectorizer) -> float:
     """
-    Build an inverted index from the 'description' field of each document.
-    (In our original code this was used to compute global IDF.)
+    Compute cosine similarity between the query and a given text using the provided vectorizer.
     """
-    inv_index = defaultdict(list)
-    for doc_id, doc in enumerate(docs):
-        # For the global idf, we index over the combined text.
-        combined = doc.get('description', '') + " " + doc.get('text', '')
-        tokens = tokenize(combined)
-        token_counts = Counter(tokens)
-        for token, count in token_counts.items():
-            inv_index[token].append((doc_id, count))
-    for token in inv_index:
-        inv_index[token].sort(key=lambda x: x[0])
-    return dict(inv_index)
+    query_vec = vectorizer.transform([query])
+    text_vec = vectorizer.transform([text])
+    sim = cosine_similarity(query_vec, text_vec)
+    return sim[0][0]
 
-def compute_idf(inv_index: Dict[str, List[Tuple[int, int]]], n_docs: int,
-                min_df: int = 1, max_df_ratio: float = 1.0) -> Dict[str, float]:
+def compute_combined_score(query: str, description: str, reviews: List[str],
+                           vectorizer: TfidfVectorizer) -> float:
     """
-    Compute IDF values (log base 2) for terms in the inverted index.
+    Compute a combined cosine similarity score for a flavor based on its description and reviews.
+    Overall score = 0.8 * (cosine similarity between query and description) +
+                    0.2 * (average cosine similarity between query and each review)
     """
-    idf = {}
-    for term, postings in inv_index.items():
-        df = len(postings)
-        if df < min_df or (df / n_docs) > max_df_ratio:
-            continue
-        idf[term] = math.log2(n_docs / df)
-    return idf
-
-def compute_doc_norms(inv_index: Dict[str, List[Tuple[int, int]]],
-                      idf: Dict[str, float],
-                      n_docs: int) -> np.ndarray:
-    """
-    Precompute the Euclidean norm (L2 norm) of each document's TF-IDF vector.
-    """
-    norms = np.zeros(n_docs)
-    for term, postings in inv_index.items():
-        if term in idf:
-            weight = idf[term]
-            for doc_id, count in postings:
-                norms[doc_id] += (count * weight) ** 2
-    return np.sqrt(norms)
-
-def accumulate_dot_scores(query_counts: Dict[str, int],
-                          inv_index: Dict[str, List[Tuple[int, int]]],
-                          idf: Dict[str, float]) -> Dict[int, float]:
-    """
-    Compute the dot product between the query vector and each document's TF-IDF vector.
-    """
-    doc_scores = defaultdict(float)
-    for term, q_count in query_counts.items():
-        if term in inv_index and term in idf:
-            query_weight = q_count * idf[term]
-            for doc_id, doc_count in inv_index[term]:
-                doc_weight = doc_count * idf[term]
-                doc_scores[doc_id] += query_weight * doc_weight
-    return dict(doc_scores)
-
-def index_search(query: str,
-                 docs: List[Dict],
-                 inv_index: Dict[str, List[Tuple[int, int]]],
-                 idf: Dict[str, float],
-                 doc_norms: np.ndarray) -> List[Tuple[float, int]]:
-    """
-    Compute cosine similarity for 'query' against each document's 'description'.
-    Returns a sorted list of (score, doc_id) by descending score.
-    (This function is kept for legacy use.)
-    """
-    tokens = tokenize(query)
-    query_counts = Counter(tokens)
-    dot_scores = accumulate_dot_scores(query_counts, inv_index, idf)
-    query_norm_sq = sum((q_count * idf.get(term, 0)) ** 2 for term, q_count in query_counts.items() if term in idf)
-    query_norm = math.sqrt(query_norm_sq)
+    desc_score = compute_cosine_similarity(query, description, vectorizer)
     
-    results = []
-    for doc_id, dot in dot_scores.items():
-        if doc_norms[doc_id] > 0 and query_norm > 0:
-            cos_sim = dot / (doc_norms[doc_id] * query_norm)
-        else:
-            cos_sim = 0
-        results.append((cos_sim, doc_id))
+    review_scores = []
+    for review in reviews:
+        if review.strip():
+            review_scores.append(compute_cosine_similarity(query, review, vectorizer))
+    avg_review_score = sum(review_scores) / len(review_scores) if review_scores else 0.0
     
-    results.sort(key=lambda x: x[0], reverse=True)
-    return results
+    combined_score = 0.8 * desc_score + 0.2 * avg_review_score
+    return combined_score
+

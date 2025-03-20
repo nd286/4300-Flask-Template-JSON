@@ -43,6 +43,10 @@ body {
     color:#DB4437;
 }
 
+#white{
+    color:white;
+}
+
 .google-colors{
     display: flex;
     align-items: center;

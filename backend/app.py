@@ -34,6 +34,7 @@ app = Flask(__name__)
 CORS(app)
 
 def json_search(query):
+    out = []
     if query:
         scored_flavors = []
         for flavor in unique_flavors.values():
@@ -43,8 +44,7 @@ def json_search(query):
             if score > 0:
                 scored_flavors.append((score, flavor))
         scored_flavors.sort(key=lambda x: x[0], reverse=True)
-        out = []
-        for score, flavor in scored_flavors[:10]:
+        for score, flavor in scored_flavors:
             out.append({
                 "title": flavor["title"],
                 "description": flavor.get("description", ""),
@@ -52,15 +52,14 @@ def json_search(query):
                 "score": score
             })
     else:
-        out = []
-        for flavor in list(unique_flavors.values())[:10]:
+        for flavor in unique_flavors.values():
             out.append({
                 "title": flavor["title"],
                 "description": flavor.get("description", ""),
                 "rating": flavor.get("rating", 0),
                 "score": 0
             })
-    return json.dumps(out)
+    return json.dumps(out[:10])
 
 @app.route("/")
 def home():
@@ -73,6 +72,7 @@ def flavors_search():
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)
+
 
 
 

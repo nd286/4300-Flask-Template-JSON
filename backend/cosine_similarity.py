@@ -1,119 +1,96 @@
 import math
 import re
-import numpy as np
-from collections import defaultdict, Counter
-from typing import List, Tuple, Dict
+from collections import Counter, defaultdict
+from typing import List, Dict, Tuple
 
 def tokenize(text: str) -> List[str]:
     """
-    A simple tokenizer that lowercases and splits on non-alphanumeric characters.
-    No NLTK needed.
+    A custom tokenizer that lowercases the text, replaces non-alphanumeric 
+    characters with spaces, and splits on whitespace.
     """
     text = text.lower()
-    # Replace any sequence of non-alphanumeric characters with a space.
     text = re.sub(r'[^a-z0-9]+', ' ', text)
-    tokens = text.split()
-    return tokens
+    return text.split()
 
 def build_inverted_index(docs: List[Dict]) -> Dict[str, List[Tuple[int, int]]]:
     """
-    Build an inverted index from the 'description' field of each document.
-    Each document is expected to have a 'description' key.
-    Returns a dict mapping from term -> list of (doc_id, term_frequency).
+    Build an inverted index from a list of documents.
+    Each document is assumed to be a string (e.g. the combined text of description and texts).
+    Returns a dict mapping each term to a sorted list of (doc_id, term frequency) tuples.
     """
-    inv_index = defaultdict(list)
-    for doc_id, doc in enumerate(docs):
-        description = doc.get('description', '')
-        tokens = tokenize(description)
-        token_counts = Counter(tokens)
-        for token, count in token_counts.items():
-            inv_index[token].append((doc_id, count))
-    # Sort postings by doc_id for consistency
-    for token in inv_index:
-        inv_index[token].sort(key=lambda x: x[0])
-    return dict(inv_index)
+    inv_idx = {}
+    for doc_id, text in enumerate(docs):
+        tokens = tokenize(text)
+        counts = Counter(tokens)
+        for token, count in counts.items():
+            if token not in inv_idx:
+                inv_idx[token] = []
+            inv_idx[token].append((doc_id, count))
+    for token in inv_idx:
+        inv_idx[token].sort(key=lambda x: x[0])
+    return inv_idx
 
-def compute_idf(inv_index: Dict[str, List[Tuple[int, int]]], n_docs: int,
+def compute_idf(inv_idx: Dict[str, List[Tuple[int, int]]], n_docs: int, 
                 min_df: int = 1, max_df_ratio: float = 1.0) -> Dict[str, float]:
     """
-    Compute IDF values (log base 2) for terms in the inverted index.
-    - min_df: words must appear in at least this many documents
-    - max_df_ratio: words must appear in at most this fraction of docs
+    Compute IDF values (using log base 2) from the inverted index.
+    Terms that appear in fewer than min_df docs or in more than max_df_ratio of docs are ignored.
     """
     idf = {}
-    for term, postings in inv_index.items():
+    for term, postings in inv_idx.items():
         df = len(postings)
         if df < min_df or (df / n_docs) > max_df_ratio:
             continue
-        # IDF with log base 2
         idf[term] = math.log2(n_docs / df)
     return idf
 
-def compute_doc_norms(inv_index: Dict[str, List[Tuple[int, int]]],
+def compute_doc_norms(inv_idx: Dict[str, List[Tuple[int, int]]],
                       idf: Dict[str, float],
-                      n_docs: int) -> np.ndarray:
+                      n_docs: int) -> List[float]:
     """
-    Precompute the Euclidean norm (L2 norm) of each document's TF-IDF vector.
-    Returns an array of length n_docs.
+    Compute the Euclidean (L2) norm for each document's TF–IDF vector.
+    Returns a list of norms (one per document).
     """
-    norms = np.zeros(n_docs)
-    for term, postings in inv_index.items():
+    norms = [0.0] * n_docs
+    for term, postings in inv_idx.items():
         if term in idf:
-            weight = idf[term]
+            w = idf[term]
             for doc_id, count in postings:
-                # Accumulate squared weight for doc_id
-                norms[doc_id] += (count * weight) ** 2
-    return np.sqrt(norms)
+                norms[doc_id] += (count * w) ** 2
+    return [math.sqrt(val) for val in norms]
 
-def accumulate_dot_scores(query_counts: Dict[str, int],
-                          inv_index: Dict[str, List[Tuple[int, int]]],
-                          idf: Dict[str, float]) -> Dict[int, float]:
+def cosine_sim_idf(query: str, text: str, idf: Dict[str, float]) -> float:
     """
-    Compute the dot product between the query vector and each document vector (term-at-a-time).
-    Returns doc_scores: a dict of { doc_id -> dot_score }.
+    Compute cosine similarity between a query and a text using IDF weighting.
+    Each term's frequency is weighted by its IDF.
     """
-    doc_scores = defaultdict(float)
-    for term, q_count in query_counts.items():
-        if term in inv_index and term in idf:
-            query_weight = q_count * idf[term]
-            for doc_id, doc_count in inv_index[term]:
-                doc_weight = doc_count * idf[term]
-                doc_scores[doc_id] += query_weight * doc_weight
-    return dict(doc_scores)
+    query_tokens = tokenize(query)
+    text_tokens = tokenize(text)
+    q_counts = Counter(query_tokens)
+    t_counts = Counter(text_tokens)
+    
+    dot = 0.0
+    for term, q_freq in q_counts.items():
+        if term in t_counts and term in idf:
+            dot += q_freq * t_counts[term] * (idf[term] ** 2)
+    
+    norm_q = math.sqrt(sum((q_counts[t] * idf.get(t, 0))**2 for t in q_counts))
+    norm_t = math.sqrt(sum((t_counts[t] * idf.get(t, 0))**2 for t in t_counts))
+    
+    if norm_q == 0 or norm_t == 0:
+        return 0.0
+    return dot / (norm_q * norm_t)
 
-def index_search(query: str,
-                 docs: List[Dict],
-                 inv_index: Dict[str, List[Tuple[int, int]]],
-                 idf: Dict[str, float],
-                 doc_norms: np.ndarray) -> List[Tuple[float, int]]:
+def compute_combined_score(query: str, description: str, texts: List[str], 
+                           idf: Dict[str, float]) -> float:
     """
-    Compute cosine similarity for 'query' against each document's 'description'.
-    Returns a sorted list of (score, doc_id) by descending score.
+    Compute the overall cosine similarity score for a flavor:
+       overall_score = 0.8 * cosine_sim(query, description) +
+                       0.2 * (average cosine_sim(query, each text))
+    Here, texts is a list of strings from the "text" field.
     """
-    # Tokenize and count terms in the query
-    tokens = tokenize(query)
-    query_counts = Counter(tokens)
-
-    # Compute the dot products for all docs
-    dot_scores = accumulate_dot_scores(query_counts, inv_index, idf)
-
-    # Compute the query's norm
-    query_norm_sq = 0.0
-    for term, q_count in query_counts.items():
-        if term in idf:
-            query_norm_sq += (q_count * idf[term]) ** 2
-    query_norm = math.sqrt(query_norm_sq)
-
-    # Compute cosine similarity
-    results = []
-    for doc_id, dot in dot_scores.items():
-        if doc_norms[doc_id] > 0 and query_norm > 0:
-            cos_sim = dot / (doc_norms[doc_id] * query_norm)
-        else:
-            cos_sim = 0
-        results.append((cos_sim, doc_id))
-
-    # Sort by highest score first
-    results.sort(key=lambda x: x[0], reverse=True)
-    return results
+    desc_score = cosine_sim_idf(query, description, idf)
+    text_scores = [cosine_sim_idf(query, text, idf) for text in texts if text.strip()]
+    avg_text_score = sum(text_scores) / len(text_scores) if text_scores else 0.0
+    return 0.8 * desc_score + 0.2 * avg_text_score
 

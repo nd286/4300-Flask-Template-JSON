@@ -3,22 +3,23 @@ import os
 from flask import Flask, render_template, request
 from flask_cors import CORS
 import pandas as pd
-from cosine_similarity import build_vectorizer, compute_combined_score
+from cosine_similarity import compute_combined_score
 
+# Set ROOT_PATH for linking with all your files.
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 current_directory = os.path.dirname(os.path.abspath(__file__))
 json_file_path = os.path.join(current_directory, 'init.json')
 
-# Load JSON data from init.json; file must have a top-level "flavors" key.
+# Load JSON data from init.json (expects a top-level "flavors" key).
 with open(json_file_path, 'r') as file:
     data = json.load(file)
     flavors_df = pd.DataFrame(data['flavors'])
 
-# Convert DataFrame to a list of documents.
+# Convert DataFrame to a list of document dictionaries.
 docs = flavors_df.to_dict(orient='records')
 
 # Group documents by flavor title.
-# For each unique flavor, store one description and all review texts.
+# For each unique flavor, store one description (assumed constant) and collect all review texts.
 unique_flavors = {}
 for doc in docs:
     title = doc.get("title", "")
@@ -33,33 +34,22 @@ for doc in docs:
     if review_text.strip():
         unique_flavors[title]["reviews"].append(review_text)
 
-# Build corpus for the TF-IDF vectorizer (using both descriptions and reviews).
-corpus = []
-for flavor in unique_flavors.values():
-    corpus.append(flavor.get("description", ""))
-    for review in flavor.get("reviews", []):
-        corpus.append(review)
-
-# Build and fit a TfidfVectorizer using scikit-learn.
-vectorizer = build_vectorizer(corpus)
-
 app = Flask(__name__)
 CORS(app)
 
 def json_search(query):
     if query:
         scored_flavors = []
-        # Compute overall cosine similarity score for each unique flavor.
+        # Compute overall combined cosine similarity for each unique flavor.
         for flavor in unique_flavors.values():
             score = compute_combined_score(query,
                                            flavor.get("description", ""),
-                                           flavor.get("reviews", []),
-                                           vectorizer)
+                                           flavor.get("reviews", []))
             if score > 0:
                 scored_flavors.append((score, flavor))
-        # Sort by descending overall score.
+        # Sort by descending score.
         scored_flavors.sort(key=lambda x: x[0], reverse=True)
-        # Keep only the top 10 results.
+        # Keep only the top 10 unique flavors.
         out = []
         for score, flavor in scored_flavors[:10]:
             out.append({
@@ -69,16 +59,15 @@ def json_search(query):
                 "score": score
             })
     else:
-        # No query provided: return the first 10 unique flavors arbitrarily.
+        # If no query is provided, simply return the first 10 unique flavors.
         out = []
-        for flavor in unique_flavors.values():
+        for flavor in list(unique_flavors.values())[:10]:
             out.append({
                 "title": flavor["title"],
                 "description": flavor.get("description", ""),
                 "rating": flavor.get("rating", 0),
                 "score": 0
             })
-        out = out[:10]
     return json.dumps(out)
 
 @app.route("/")
@@ -92,6 +81,7 @@ def flavors_search():
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)
+
 
 
 

@@ -15,12 +15,12 @@ def tokenize(text: str) -> List[str]:
 
 def build_inverted_index(docs: List[Dict]) -> Dict[str, List[Tuple[int, int]]]:
     """
-    Build an inverted index from the combined 'description' and 'text' (review)
-    fields of each document. Each document is expected to have a 'description'
-    and/or 'text' key. Returns a dict mapping from term -> list of (doc_id, term_frequency).
+    Build an inverted index from the 'description' field of each document.
+    (In our original code this was used to compute global IDF.)
     """
     inv_index = defaultdict(list)
     for doc_id, doc in enumerate(docs):
+        # For the global idf, we index over the combined text.
         combined = doc.get('description', '') + " " + doc.get('text', '')
         tokens = tokenize(combined)
         token_counts = Counter(tokens)
@@ -78,8 +78,9 @@ def index_search(query: str,
                  idf: Dict[str, float],
                  doc_norms: np.ndarray) -> List[Tuple[float, int]]:
     """
-    Compute cosine similarity for 'query' against each document's combined 'description' and 'text'.
-    Returns a sorted list of (score, doc_id) tuples (highest score first).
+    Compute cosine similarity for 'query' against each document's 'description'.
+    Returns a sorted list of (score, doc_id) by descending score.
+    (This function is kept for legacy use.)
     """
     tokens = tokenize(query)
     query_counts = Counter(tokens)

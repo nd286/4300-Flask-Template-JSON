@@ -15,7 +15,7 @@ def tokenize(text: str) -> List[str]:
 def build_inverted_index(docs: List[Dict]) -> Dict[str, List[Tuple[int, int]]]:
     """
     Build an inverted index from a list of documents.
-    Each document is a string (the combined text of description and ingredients).
+    Each document is a string (the combined text of description, subhead, and ingredients).
     Returns a dict mapping each term to a sorted list of (doc_id, term frequency) tuples.
     """
     inv_idx = defaultdict(list)
@@ -78,14 +78,18 @@ def cosine_sim_idf(query: str, text: str, idf: Dict[str, float]) -> float:
         return 0.0
     return dot / (norm_q * norm_t)
 
-def compute_combined_score(query: str, description: str, ingredients: str, 
+def compute_combined_score(query: str, description: str, subhead: str, ingredients: str, 
                            idf: Dict[str, float]) -> float:
     """
     Compute an overall cosine similarity score for a flavor using IDF weighting.
-    overall_score = 0.8 * cosine_sim(query, description) +
-                    0.2 * cosine_sim(query, ingredients)
+    
+    overall_score = 0.6 * cosine_sim(query, description) +
+                    0.3 * cosine_sim(query, subhead) +
+                    0.1 * cosine_sim(query, ingredients)
     """
     desc_score = cosine_sim_idf(query, description, idf)
+    subhead_score = cosine_sim_idf(query, subhead, idf)
     ingr_score = cosine_sim_idf(query, ingredients, idf)
-    return 0.8 * desc_score + 0.2 * ingr_score
+    return 0.6 * desc_score + 0.3 * subhead_score + 0.1 * ingr_score
+
 

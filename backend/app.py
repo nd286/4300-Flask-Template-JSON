@@ -23,13 +23,14 @@ for doc in docs:
         unique_flavors[title] = {
             "title": title,
             "description": doc.get("description", ""),
+            "subhead": doc.get("subhead", ""),
             "ingredients_y": doc.get("ingredients_y", ""),
             "rating": doc.get("rating", 0)
         }
 
 corpus = []
 for flavor in unique_flavors.values():
-    combined = flavor.get("description", "") + " " + flavor.get("ingredients_y", "")
+    combined = flavor.get("description", "") + " " + flavor.get("subhead", "") + " " + flavor.get("ingredients_y", "")
     corpus.append(combined)
 
 inv_index = {}
@@ -49,7 +50,6 @@ for term, postings in inv_index.items():
     if len(postings) >= 1 and (len(postings) / n_docs) <= 1.0:
         idf[term] = math.log2(n_docs / len(postings))
 
-
 doc_norms = [0.0] * n_docs
 for term, postings in inv_index.items():
     if term in idf:
@@ -68,6 +68,7 @@ def json_search(query: str) -> str:
         for flavor in unique_flavors.values():
             score = compute_combined_score(query,
                                            flavor.get("description", ""),
+                                           flavor.get("subhead", ""),
                                            flavor.get("ingredients_y", ""),
                                            idf)
             if score > 0:
@@ -80,6 +81,7 @@ def json_search(query: str) -> str:
             out.append({
                 "title": flavor["title"],
                 "description": flavor.get("description", ""),
+                "subhead": flavor.get("subhead", ""),
                 "ingredients_y": flavor.get("ingredients_y", ""),
                 "rating": flavor.get("rating", 0),
                 "score": score
@@ -91,6 +93,7 @@ def json_search(query: str) -> str:
             out.append({
                 "title": flavor["title"],
                 "description": flavor.get("description", ""),
+                "subhead": flavor.get("subhead", ""),
                 "ingredients_y": flavor.get("ingredients_y", ""),
                 "rating": flavor.get("rating", 0),
                 "score": 0
@@ -108,6 +111,7 @@ def flavors_search():
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)
+
 
 
 

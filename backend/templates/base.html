@@ -39,7 +39,7 @@
     <script>
         function answerBoxTemplate(rank, title, description, subhead, rating) {
             return `<div class='result'>
-                <h3 class='episode-title'>Rank ${rank}: ${title}</h3>
+                <h3 class='episode-title'>Recommendation #${rank}: ${title}</h3>
                 <p class='episode-desc'><strong>Description:</strong> ${description}</p>
                 <p class='episode-subhead'><strong>Subhead:</strong> ${subhead}</p>
                 <p class='episode-ingredients'><strong>Ingredients:</strong> ${ingredients_y}</p>
@@ -47,17 +47,6 @@
             </div>`;
         }
         
-        // Updated answerBoxTemplate to display rank and all fields.
-        function answerBoxTemplate(rank, title, description, subhead, ingredients_y, rating) {
-            return `<div class='result'>
-                <h3 class='episode-title'>Rank ${rank}: ${title}</h3>
-                <p class='episode-desc'><strong>Description:</strong> ${description}</p>
-                <p class='episode-subhead'><strong>Subhead:</strong> ${subhead}</p>
-                <p class='episode-ingredients'><strong>Ingredients:</strong> ${ingredients_y}</p>
-                <p class='episode-rating'><strong>Rating:</strong> ${rating}</p>
-            </div>`;
-        }
-
         function sendFocus() {
             document.getElementById('filter-text-val').focus();
         }

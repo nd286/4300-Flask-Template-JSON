@@ -64,7 +64,6 @@ CORS(app)
 def json_search(query: str) -> str:
     scored_flavors = []
     if query:
-
         for flavor in unique_flavors.values():
             score = compute_combined_score(query,
                                            flavor.get("description", ""),
@@ -77,7 +76,7 @@ def json_search(query: str) -> str:
         out = []
         for rank, (score, flavor) in enumerate(scored_flavors[:10], start=1):
             out.append({
-                "rank": rank,
+                "recommendation": rank,
                 "title": flavor["title"],
                 "description": flavor.get("description", ""),
                 "subhead": flavor.get("subhead", ""),
@@ -88,7 +87,7 @@ def json_search(query: str) -> str:
         out = []
         for rank, flavor in enumerate(list(unique_flavors.values())[:10], start=1):
             out.append({
-                "rank": rank,
+                "recommendation": rank,
                 "title": flavor["title"],
                 "description": flavor.get("description", ""),
                 "subhead": flavor.get("subhead", ""),

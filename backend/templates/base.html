@@ -29,38 +29,35 @@
                 <h1 id="white">S</h1>
             </div>
             <div class="input-box" onclick="sendFocus()">
-                <img src="{{ url_for('static', filename='images/mag.png') }}" />
+                <img src="{{ url_for('static', filename='images/mag.png') }}">
                 <input placeholder="Search for an Ice Cream Flavor" id="filter-text-val" onkeyup="filterText()">
             </div>
         </div>
         <div id="answer-box"></div>
     </div>
-    
     <script>
-        function answerBoxTemplate(rank, title, description, subhead, rating) {
+        function answerBoxTemplate(recommendation, title, description, subhead, ingredients_y, rating) {
             return `<div class='result'>
-                <h3 class='episode-title'>Recommendation #${rank}: ${title}</h3>
-                <p class='episode-desc'><strong>Description:</strong> ${description}</p>
-                <p class='episode-subhead'><strong>Subhead:</strong> ${subhead}</p>
+                <h3 class='episode-title'>Recommendation ${recommendation}: ${title}</h3>
                 <p class='episode-ingredients'><strong>Ingredients:</strong> ${ingredients_y}</p>
+                <p class='episode-desc'><strong>Description:</strong> ${description}</p>
                 <p class='episode-rating'><strong>Rating:</strong> ${rating}</p>
             </div>`;
         }
-        
         function sendFocus() {
             document.getElementById('filter-text-val').focus();
         }
-        
         function filterText() {
             document.getElementById("answer-box").innerHTML = "";
             fetch("/flavors?" + new URLSearchParams({ title: document.getElementById("filter-text-val").value }).toString())
                 .then(response => response.json())
                 .then(data => data.forEach(row => {
                     let tempDiv = document.createElement("div");
-                    tempDiv.innerHTML = answerBoxTemplate(row.rank, row.title, row.description, row.subhead, row.ingredients_y, row.rating);
+                    tempDiv.innerHTML = answerBoxTemplate(row.recommendation, row.title, row.description, row.subhead, row.ingredients_y, row.rating);
                     document.getElementById("answer-box").appendChild(tempDiv);
                 }));
         }
     </script>
 </body>
 </html>
+

@@ -36,13 +36,22 @@
         <div id="answer-box"></div>
     </div>
     <script>
+        function toggleDetails(id) {
+            var el = document.getElementById(id);
+            el.style.display = el.style.display === "none" ? "block" : "none";
+        }
         function answerBoxTemplate(recommendation, title, description, subhead, ingredients_y, rating) {
-            return `<div class='result'>
-                <h3 class='episode-title'>Recommendation ${recommendation}: ${title}</h3>
-                <p class='episode-ingredients'><strong>Ingredients:</strong> ${ingredients_y}</p>
-                <p class='episode-desc'><strong>Description:</strong> ${description}</p>
-                <p class='episode-rating'><strong>Rating:</strong> ${rating}</p>
-            </div>`;
+            return `<div class="result">
+                        <div class="result-header" onclick="toggleDetails('details-${recommendation}')">
+                            <h3 class="episode-title">Recommendation ${recommendation}: ${title}</h3>
+                        </div>
+                        <div class="result-details" id="details-${recommendation}" style="display: none;">
+                            <p class="episode-desc"><strong>Description:</strong> ${description}</p>
+                            <p class="episode-subhead"><strong>Subhead:</strong> ${subhead}</p>
+                            <p class="episode-ingredients"><strong>Ingredients:</strong> ${ingredients_y}</p>
+                            <p class="episode-rating"><strong>Rating:</strong> ${rating}</p>
+                        </div>
+                    </div>`;
         }
         function sendFocus() {
             document.getElementById('filter-text-val').focus();
@@ -60,4 +69,5 @@
     </script>
 </body>
 </html>
+
 

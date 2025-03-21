@@ -4,115 +4,108 @@ body {
     background-position: center;
     background-repeat: no-repeat;
 }
-
-.full-body-container{
+.full-body-container {
     position: absolute;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
-    width:100%;
-    height:100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
     display: flex;
     justify-content: start;
     align-items: center;
     flex-direction: column;
 }
-
-#google-c{
-    color:#4285F4;
+#google-c {
+    color: #4285F4;
 }
-
-#google-s{
-    color:#DB4437;
+#google-s {
+    color: #DB4437;
 }
-
-#google-4{
-    color:#F4B400;
+#google-4 {
+    color: #F4B400;
 }
-
-#google-3{
-    color:#4285F4;
+#google-3 {
+    color: #4285F4;
 }
-
-#google-0-1{
-    color:#0F9D58;
+#google-0-1 {
+    color: #0F9D58;
 }
-
-#google-0-2{
-    color:#DB4437;
+#google-0-2 {
+    color: #DB4437;
 }
-
-#white{
-    color:white;
-    text-shadow: 
-        -1px -1px 0 black,
-         1px -1px 0 black,
-        -1px  1px 0 black,
-         1px  1px 0 black;
+#white {
+    color: white;
+    text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
 }
-
-.google-colors{
+.google-colors {
     display: flex;
     align-items: center;
     font-size: 48px;
     font-family: 'Open Sans', sans-serif;
 }
-
-.google-colors h1{
+.google-colors h1 {
     margin-bottom: 0;
     margin-right: 3px;
 }
-
-.input-box{
+.input-box {
     border-radius: 50px;
-    border:1px solid black;
+    border: 1px solid black;
     display: flex;
     align-items: center;
     margin-top: 10px;
-    padding:12px;
+    padding: 12px;
     width: 600px;
-    background-color: white; 
 }
-
-.input-box img{
+.input-box img {
     height: 20px;
-    width:20px;
+    width: 20px;
 }
-
-.top-text{
+.top-text {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-
-.input-box input{
+.input-box input {
     width: 100%;
     margin-left: 10px;
     font-size: 16px;
     border: none;
     outline: 0;
-    background-color: white; 
+    background-color: white;
     color: black;
 }
-
-#answer-box{
+#answer-box {
     width: 700px;
-    margin-top:300px; 
+    margin-top: 300px;
 }
-
-.episode-title{
+.result {
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.9);
+}
+.result-header {
+    cursor: pointer;
+    padding: 8px;
+    background: #f0f0f0;
+}
+.result-header:hover {
+    background: #e0e0e0;
+}
+.result-details {
+    padding: 8px;
+    border-top: 1px solid #ccc;
+}
+.episode-title {
     font-family: 'Kanit', sans-serif;
+    margin: 0;
 }
-
-.episode-desc{
+.episode-desc,
+.episode-subhead,
+.episode-ingredients,
+.episode-rating {
     font-family: 'Montserrat', sans-serif;
-}
-
-.episode-subhead {
-    font-family: 'Montserrat', sans-serif;
-}
-
-.episode-ingredients {
-    font-family: 'Montserrat', sans-serif;
+    margin: 4px 0;
 }

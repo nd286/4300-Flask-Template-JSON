@@ -28,15 +28,15 @@ body {
 }
 
 #google-4{
-    color:	#F4B400;
+    color:#F4B400;
 }
 
 #google-3{
-    color:	#4285F4;
+    color:#4285F4;
 }
 
 #google-0-1{
-    color:	#0F9D58;
+    color:#0F9D58;
 }
 
 #google-0-2{
@@ -46,10 +46,10 @@ body {
 #white{
     color:white;
     text-shadow: 
-    -1px -1px 0 black,
-     1px -1px 0 black,
-    -1px  1px 0 black,
-     1px  1px 0 black;
+        -1px -1px 0 black,
+         1px -1px 0 black,
+        -1px  1px 0 black,
+         1px  1px 0 black;
 }
 
 .google-colors{
@@ -72,6 +72,7 @@ body {
     margin-top: 10px;
     padding:12px;
     width: 600px;
+    background-color: white; 
 }
 
 .input-box img{
@@ -91,6 +92,8 @@ body {
     font-size: 16px;
     border: none;
     outline: 0;
+    background-color: white; 
+    color: black;
 }
 
 #answer-box{
@@ -103,5 +106,13 @@ body {
 }
 
 .episode-desc{
+    font-family: 'Montserrat', sans-serif;
+}
+
+.episode-subhead {
+    font-family: 'Montserrat', sans-serif;
+}
+
+.episode-ingredients {
     font-family: 'Montserrat', sans-serif;
 }

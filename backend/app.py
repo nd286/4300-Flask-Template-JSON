@@ -73,30 +73,27 @@ def json_search(query: str) -> str:
                                            idf)
             if score > 0:
                 scored_flavors.append((score, flavor))
-
         scored_flavors.sort(key=lambda x: x[0], reverse=True)
-
         out = []
-        for score, flavor in scored_flavors[:10]:
+        for rank, (score, flavor) in enumerate(scored_flavors[:10], start=1):
             out.append({
+                "rank": rank,
                 "title": flavor["title"],
                 "description": flavor.get("description", ""),
                 "subhead": flavor.get("subhead", ""),
                 "ingredients_y": flavor.get("ingredients_y", ""),
-                "rating": flavor.get("rating", 0),
-                "score": score
+                "rating": flavor.get("rating", 0)
             })
     else:
-
         out = []
-        for flavor in list(unique_flavors.values())[:10]:
+        for rank, flavor in enumerate(list(unique_flavors.values())[:10], start=1):
             out.append({
+                "rank": rank,
                 "title": flavor["title"],
                 "description": flavor.get("description", ""),
                 "subhead": flavor.get("subhead", ""),
                 "ingredients_y": flavor.get("ingredients_y", ""),
-                "rating": flavor.get("rating", 0),
-                "score": 0
+                "rating": flavor.get("rating", 0)
             })
     return json.dumps(out)
 
@@ -111,6 +108,7 @@ def flavors_search():
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)
+
 
 
 

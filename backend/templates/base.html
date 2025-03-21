@@ -33,8 +33,10 @@
                 <input placeholder="Search for an Ice Cream Flavor" id="filter-text-val" onkeyup="filterText()">
             </div>
         </div>
-        <div id="results-title" style="display:none;">Ice cream recommendations</div>
-        <div id="answer-box"></div>
+        <div class="results-container">
+            <div id="results-title" style="display:none;">Ice cream recommendations</div>
+            <div id="answer-box"></div>
+        </div>
     </div>
     <script>
         function toggleDetails(id) {
@@ -60,7 +62,6 @@
         function filterText() {
             document.getElementById("answer-box").innerHTML = "";
             var query = document.getElementById("filter-text-val").value;
-            // Hide recommendations title if query is empty
             if(query.trim() === ""){
                 document.getElementById("results-title").style.display = "none";
                 return;
@@ -83,6 +84,7 @@
     </script>
 </body>
 </html>
+
 
 
 

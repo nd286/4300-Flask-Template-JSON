@@ -90,6 +90,6 @@ def compute_combined_score(query: str, description: str, subhead: str, ingredien
     desc_score = cosine_sim_idf(query, description, idf)
     subhead_score = cosine_sim_idf(query, subhead, idf)
     ingr_score = cosine_sim_idf(query, ingredients, idf)
-    return 0.6 * desc_score + 0.3 * subhead_score + 0.1 * ingr_score
+    return 0.4 * desc_score + 0.5 * subhead_score + 0.1 * ingr_score
 
 

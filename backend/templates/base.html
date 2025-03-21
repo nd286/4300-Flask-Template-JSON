@@ -33,17 +33,18 @@
                 <input placeholder="Search for an Ice Cream Flavor" id="filter-text-val" onkeyup="filterText()">
             </div>
         </div>
+        <div id="results-title" style="display:none;">Ice cream recommendations</div>
         <div id="answer-box"></div>
     </div>
     <script>
         function toggleDetails(id) {
             var el = document.getElementById(id);
-            el.style.display = el.style.display === "none" ? "block" : "none";
+            el.style.display = (el.style.display === "none" ? "block" : "none");
         }
         function answerBoxTemplate(recommendation, title, description, subhead, ingredients_y, rating) {
             return `<div class="result">
                         <div class="result-header" onclick="toggleDetails('details-${recommendation}')">
-                            <h3 class="episode-title">Recommendation ${recommendation}: ${title}</h3>
+                            <h3 class="episode-title">Recommendation ${recommendation}: ${title} <span class="toggle-icon">▼</span></h3>
                         </div>
                         <div class="result-details" id="details-${recommendation}" style="display: none;">
                             <p class="episode-desc"><strong>Description:</strong> ${description}</p>
@@ -58,16 +59,30 @@
         }
         function filterText() {
             document.getElementById("answer-box").innerHTML = "";
-            fetch("/flavors?" + new URLSearchParams({ title: document.getElementById("filter-text-val").value }).toString())
+            var query = document.getElementById("filter-text-val").value;
+            // Hide recommendations title if query is empty
+            if(query.trim() === ""){
+                document.getElementById("results-title").style.display = "none";
+                return;
+            }
+            fetch("/flavors?" + new URLSearchParams({ title: query }).toString())
                 .then(response => response.json())
-                .then(data => data.forEach(row => {
-                    let tempDiv = document.createElement("div");
-                    tempDiv.innerHTML = answerBoxTemplate(row.recommendation, row.title, row.description, row.subhead, row.ingredients_y, row.rating);
-                    document.getElementById("answer-box").appendChild(tempDiv);
-                }));
+                .then(data => {
+                    if(data.length > 0){
+                        document.getElementById("results-title").style.display = "block";
+                    } else {
+                        document.getElementById("results-title").style.display = "none";
+                    }
+                    data.forEach(row => {
+                        let tempDiv = document.createElement("div");
+                        tempDiv.innerHTML = answerBoxTemplate(row.recommendation, row.title, row.description, row.subhead, row.ingredients_y, row.rating);
+                        document.getElementById("answer-box").appendChild(tempDiv);
+                    });
+                });
         }
     </script>
 </body>
 </html>
+
 
 

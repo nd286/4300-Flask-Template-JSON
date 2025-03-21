@@ -76,9 +76,16 @@ body {
     background-color: white;
     color: black;
 }
+#results-title {
+    font-family: 'Kanit', sans-serif;
+    font-size: 32px;
+    margin: 20px 0;
+    color: white;
+    text-shadow: 1px 1px 2px black;
+}
 #answer-box {
     width: 700px;
-    margin-top: 300px;
+    margin-top: 20px;
 }
 .result {
     margin-bottom: 15px;
@@ -90,6 +97,9 @@ body {
     cursor: pointer;
     padding: 8px;
     background: #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 .result-header:hover {
     background: #e0e0e0;
@@ -109,3 +119,8 @@ body {
     font-family: 'Montserrat', sans-serif;
     margin: 4px 0;
 }
+.toggle-icon {
+    font-size: 18px;
+    margin-left: 10px;
+}
+

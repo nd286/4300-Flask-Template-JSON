@@ -2,6 +2,8 @@ import math
 import re
 from collections import Counter, defaultdict
 from typing import List, Dict, Tuple
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 
 def tokenize(text: str) -> List[str]:
     """
@@ -11,6 +13,7 @@ def tokenize(text: str) -> List[str]:
     text = text.lower()
     text = re.sub(r'[^a-z0-9]+', ' ', text)
     return text.split()
+
 
 def build_inverted_index(docs: List[Dict]) -> Dict[str, List[Tuple[int, int]]]:
     """
@@ -28,7 +31,8 @@ def build_inverted_index(docs: List[Dict]) -> Dict[str, List[Tuple[int, int]]]:
         inv_idx[token].sort(key=lambda x: x[0])
     return dict(inv_idx)
 
-def compute_idf(inv_idx: Dict[str, List[Tuple[int, int]]], n_docs: int, 
+
+def compute_idf(inv_idx: Dict[str, List[Tuple[int, int]]], n_docs: int,
                 min_df: int = 1, max_df_ratio: float = 1.0) -> Dict[str, float]:
     """
     Compute IDF values (using log base 2) from the inverted index.
@@ -40,6 +44,7 @@ def compute_idf(inv_idx: Dict[str, List[Tuple[int, int]]], n_docs: int,
             continue
         idf[term] = math.log2(n_docs / df)
     return idf
+
 
 def compute_doc_norms(inv_idx: Dict[str, List[Tuple[int, int]]],
                       idf: Dict[str, float],
@@ -56,6 +61,7 @@ def compute_doc_norms(inv_idx: Dict[str, List[Tuple[int, int]]],
                 norms[doc_id] += (count * w) ** 2
     return [math.sqrt(val) for val in norms]
 
+
 def cosine_sim_idf(query: str, text: str, idf: Dict[str, float]) -> float:
     """
     Compute cosine similarity between a query and a text using IDF weighting.
@@ -65,24 +71,27 @@ def cosine_sim_idf(query: str, text: str, idf: Dict[str, float]) -> float:
     text_tokens = tokenize(text)
     q_counts = Counter(query_tokens)
     t_counts = Counter(text_tokens)
-    
+
     dot = 0.0
     for term, q_freq in q_counts.items():
         if term in t_counts and term in idf:
             dot += q_freq * t_counts[term] * (idf[term] ** 2)
-    
-    norm_q = math.sqrt(sum((q_counts[t] * idf.get(t, 0)) ** 2 for t in q_counts))
-    norm_t = math.sqrt(sum((t_counts[t] * idf.get(t, 0)) ** 2 for t in t_counts))
-    
+
+    norm_q = math.sqrt(
+        sum((q_counts[t] * idf.get(t, 0)) ** 2 for t in q_counts))
+    norm_t = math.sqrt(
+        sum((t_counts[t] * idf.get(t, 0)) ** 2 for t in t_counts))
+
     if norm_q == 0 or norm_t == 0:
         return 0.0
     return dot / (norm_q * norm_t)
 
-def compute_combined_score(query: str, description: str, subhead: str, ingredients: str, 
+
+def compute_combined_score(query: str, description: str, subhead: str, ingredients: str,
                            idf: Dict[str, float]) -> float:
     """
     Compute an overall cosine similarity score for a flavor using IDF weighting.
-    
+
     overall_score = 0.6 * cosine_sim(query, description) +
                     0.3 * cosine_sim(query, subhead) +
                     0.1 * cosine_sim(query, ingredients)
@@ -91,5 +100,3 @@ def compute_combined_score(query: str, description: str, subhead: str, ingredien
     subhead_score = cosine_sim_idf(query, subhead, idf)
     ingr_score = cosine_sim_idf(query, ingredients, idf)
     return 0.4 * desc_score + 0.5 * subhead_score + 0.1 * ingr_score
-
-

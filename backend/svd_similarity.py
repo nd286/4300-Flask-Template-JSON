@@ -107,3 +107,4 @@ def query_composite_svd_similarity(query, models, weights):
         else:
             composite_scores += weighted_scores
     return composite_scores
+

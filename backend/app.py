@@ -49,8 +49,8 @@ composite_models = build_composite_svd_models(flavor_list, n_components=50)
 weights = {
     "description": 0.4,
     "subhead": 0.3,
-    "ingredients": 0.1,
-    "reviews": 0.2
+    "ingredients": 0.2,
+    "reviews": 0.1
 }
 
 app = Flask(__name__)

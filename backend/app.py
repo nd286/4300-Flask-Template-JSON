@@ -57,6 +57,15 @@ def normalize_brand(brand):
         return brand.title()
 
 
+ALLERGY_KEYWORDS = {
+    "dairy": ["milk", "cream", "cheese", "butter", "whey", "casein", "yogurt"],
+    "nuts": ["peanut", "almond", "cashew", "walnut", "hazelnut", "macadamia", "pecan", "pistachio", "nut"],
+    "gluten": ["wheat", "barley", "rye", "spelt", "farro", "malt"],
+    "soy": ["soy", "soya", "soybean", "edamame", "tofu"],
+    "eggs": ["egg", "egg yolk", "egg white", "albumin"]
+}
+
+
 def json_search(query: str, min_rating=0, allergy_list=[]) -> str:
     if not query.strip():
         return json.dumps([])
@@ -73,8 +82,17 @@ def json_search(query: str, min_rating=0, allergy_list=[]) -> str:
     for score, flavor in scored_flavors:
         if float(flavor.get("rating", 0)) < min_rating:
             continue
-        if any(allergen in flavor.get("ingredients_y", "").lower() for allergen in allergy_list):
+        ingredients = flavor.get("ingredients_y", "").lower()
+
+        exclude = False
+        for allergy in allergy_list:
+            keywords = ALLERGY_KEYWORDS.get(allergy.lower(), [])
+            if any(kw in ingredients for kw in keywords):
+                exclude = True
+                break
+        if exclude:
             continue
+
         filtered_flavors.append((score, flavor))
         if len(filtered_flavors) >= 10:
             break

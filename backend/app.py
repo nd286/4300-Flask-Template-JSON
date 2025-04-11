@@ -1,21 +1,25 @@
+# app.py
 import json
 import os
-import math
 from flask import Flask, render_template, request
 from flask_cors import CORS
 import pandas as pd
-from cosine_similarity import tokenize, build_inverted_index, compute_idf, compute_doc_norms, compute_combined_score
+from svd_similarity import build_svd_model, query_svd_similarity
 
+# Set up the ROOT_PATH and file paths.
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 current_directory = os.path.dirname(os.path.abspath(__file__))
 json_file_path = os.path.join(current_directory, 'init.json')
 
+# Load the flavor data from JSON and create a DataFrame.
 with open(json_file_path, 'r') as file:
     data = json.load(file)
     flavors_df = pd.DataFrame(data['flavors'])
 
+# Convert DataFrame records to a list of dictionaries.
 docs = flavors_df.to_dict(orient='records')
 
+# Build a unique collection of flavors (using the "title" as key).
 unique_flavors = {}
 for doc in docs:
     title = doc.get("title", "").strip()
@@ -28,35 +32,16 @@ for doc in docs:
             "rating": doc.get("rating", 0)
         }
 
+# Build the corpus: For each unique flavor, combine description, subhead, and ingredients.
 corpus = []
+flavor_list = []  # Preserving the same order of documents in the corpus.
 for flavor in unique_flavors.values():
     combined = flavor.get("description", "") + " " + flavor.get("subhead", "") + " " + flavor.get("ingredients_y", "")
     corpus.append(combined)
+    flavor_list.append(flavor)
 
-inv_index = {}
-for doc_id, text in enumerate(corpus):
-    tokens = tokenize(text)
-    counts = {}
-    for token in tokens:
-        counts[token] = counts.get(token, 0) + 1
-    for token, count in counts.items():
-        if token not in inv_index:
-            inv_index[token] = []
-        inv_index[token].append((doc_id, count))
-n_docs = len(corpus)
-
-idf = {}
-for term, postings in inv_index.items():
-    if len(postings) >= 1 and (len(postings) / n_docs) <= 1.0:
-        idf[term] = math.log2(n_docs / len(postings))
-
-doc_norms = [0.0] * n_docs
-for term, postings in inv_index.items():
-    if term in idf:
-        w = idf[term]
-        for doc_id, count in postings:
-            doc_norms[doc_id] += (count * w) ** 2
-doc_norms = [math.sqrt(x) for x in doc_norms]
+# Build the SVD model from the corpus. Adjust n_components if needed.
+vectorizer, svd_model, doc_vectors = build_svd_model(corpus, n_components=50)
 
 app = Flask(__name__)
 CORS(app)
@@ -64,16 +49,17 @@ CORS(app)
 def json_search(query: str) -> str:
     if not query.strip():
         return json.dumps([])
+    # Compute the similarity scores using the SVD-based model.
+    sim_scores = query_svd_similarity(query, vectorizer, svd_model, doc_vectors)
+    
+    # Prepare the list of scored flavors.
     scored_flavors = []
-    for flavor in unique_flavors.values():
-        score = compute_combined_score(query,
-                                       flavor.get("description", ""),
-                                       flavor.get("subhead", ""),
-                                       flavor.get("ingredients_y", ""),
-                                       idf)
+    for idx, score in enumerate(sim_scores):
         if score > 0:
-            scored_flavors.append((score, flavor))
+            scored_flavors.append((score, flavor_list[idx]))
     scored_flavors.sort(key=lambda x: x[0], reverse=True)
+    
+    # Build the output (top 10 results).
     out = []
     for rec_num, (score, flavor) in enumerate(scored_flavors[:10], start=1):
         out.append({
@@ -82,7 +68,8 @@ def json_search(query: str) -> str:
             "description": flavor.get("description", ""),
             "subhead": flavor.get("subhead", ""),
             "ingredients_y": flavor.get("ingredients_y", ""),
-            "rating": flavor.get("rating", 0)
+            "rating": flavor.get("rating", 0),
+            "similarity_score": score
         })
     return json.dumps(out)
 

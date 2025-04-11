@@ -30,25 +30,28 @@
             </div>
             <div class="input-box" onclick="sendFocus()">
                 <img src="{{ url_for('static', filename='images/mag.png') }}">
-                <input placeholder="Search for an Ice Cream Flavor" id="filter-text-val" onkeyup="filterText()">
+                <input placeholder="Search for an Ice Cream Flavor" id="filter-text-val" oninput="showFilters()">
             </div>
             <div id="filters-container" class="filter-options" style="display: none; margin-top: 10px;">
                 <label for="rating-filter">Minimum Rating:</label>
                 <select id="rating-filter" onchange="filterText()">
                     <option value="0">Any</option>
+                    <option value="2">1+ stars</option>
+                    <option value="2">2+ stars</option>
                     <option value="3">3+ stars</option>
                     <option value="4">4+ stars</option>
                     <option value="5">5 stars only</option>
                 </select>
 
                 <label for="allergy-filter">Allergies (exclude):</label>
-                <select id="allergy-filter" multiple onchange="filterText()">
+                <select id="allergy-filter" multiple>
                     <option value="nuts">Nuts</option>
                     <option value="dairy">Dairy</option>
                     <option value="gluten">Gluten</option>
                     <option value="soy">Soy</option>
                     <option value="eggs">Eggs</option>
                 </select>
+                <button onclick="fetchFlavors()" style="margin-left: 10px;">Find My Flavors</button>
             </div>
         </div>
         <div class="results-container">
@@ -80,45 +83,59 @@
         function sendFocus() {
             document.getElementById('filter-text-val').focus();
         }
-        function filterText() {
+        function showFilters() {
             const query = document.getElementById("filter-text-val").value.trim();
             const filtersContainer = document.getElementById("filters-container");
-            filtersContainer.style.display = query.length > 0 ? "flex" : "none";
-            if(query.trim() === ""){
+            if (query !== "") {
+                filtersContainer.style.display = "flex";
+            } else {
+                filtersContainer.style.display = "none";
                 document.getElementById("results-title").style.display = "none";
-                return;
+                document.getElementById("answer-box").innerHTML = "";
             }
-            const minRating = document.getElementById("rating-filter").value;
+        }
+
+        function fetchFlavors() {
+            const query = document.getElementById("filter-text-val").value.trim();
+            const rating = document.getElementById("rating-filter").value;
             const allergySelect = document.getElementById("allergy-filter");
             const allergies = Array.from(allergySelect.selectedOptions).map(option => option.value);
 
+            if (query === "" || rating === "") {
+                alert("Please enter a flavor and select a minimum rating.");
+                return;
+            }
+
             fetch("/flavors?" + new URLSearchParams({
                 title: query,
-                min_rating: minRating,
+                min_rating: rating,
                 allergies: allergies.join(",")
             }).toString())
-                .then(response => response.json())
-                .then(data => {
-                    if(data.length > 0){
-                        document.getElementById("results-title").style.display = "block";
-                    } else {
-                        document.getElementById("results-title").style.display = "none";
-                    }
-                    data.forEach(row => {
-                        let tempDiv = document.createElement("div");
-                        tempDiv.innerHTML = answerBoxTemplate(row.brand, row.title, row.description, row.subhead, row.ingredients_y, row.rating);
-                        document.getElementById("answer-box").appendChild(tempDiv);
-                    });
+            .then(response => response.json())
+            .then(data => {
+                const answerBox = document.getElementById("answer-box");
+                answerBox.innerHTML = "";
+
+                if (data.length > 0) {
+                    document.getElementById("results-title").style.display = "block";
+                } else {
+                    document.getElementById("results-title").style.display = "none";
+                }
+
+                data.forEach(row => {
+                    let tempDiv = document.createElement("div");
+                    tempDiv.innerHTML = answerBoxTemplate(
+                        row.brand,
+                        row.title,
+                        row.description,
+                        row.subhead,
+                        row.ingredients_y,
+                        row.rating
+                    );
+                    answerBox.appendChild(tempDiv);
                 });
+            });
         }
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-

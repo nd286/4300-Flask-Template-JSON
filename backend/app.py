@@ -45,6 +45,7 @@ weights = {
 app = Flask(__name__)
 CORS(app)
 
+
 def normalize_brand(brand):
     """Convert brand codes to full names and apply title case."""
     brand_lower = brand.lower()
@@ -55,21 +56,33 @@ def normalize_brand(brand):
     else:
         return brand.title()
 
-def json_search(query: str) -> str:
+
+def json_search(query: str, min_rating=0, allergy_list=[]) -> str:
     if not query.strip():
         return json.dumps([])
-    
-    composite_scores = query_composite_svd_similarity(query, composite_models, weights)
+
+    composite_scores = query_composite_svd_similarity(
+        query, composite_models, weights)
     scored_flavors = []
     for idx, score in enumerate(composite_scores):
         if score > 0:
             scored_flavors.append((score, flavor_list[idx]))
     scored_flavors.sort(key=lambda x: x[0], reverse=True)
-    
+
+    filtered_flavors = []
+    for score, flavor in scored_flavors:
+        if float(flavor.get("rating", 0)) < min_rating:
+            continue
+        if any(allergen in flavor.get("ingredients_y", "").lower() for allergen in allergy_list):
+            continue
+        filtered_flavors.append((score, flavor))
+        if len(filtered_flavors) >= 10:
+            break
+
     out = []
-    for score, flavor in scored_flavors[:10]:
+    for score, flavor in filtered_flavors:
         out.append({
-            "title": flavor["title"].title(),  
+            "title": flavor["title"].title(),
             "brand": normalize_brand(flavor.get("brand", "")),
             "description": flavor.get("description", ""),
             "subhead": flavor.get("subhead", ""),
@@ -80,35 +93,20 @@ def json_search(query: str) -> str:
         })
     return json.dumps(out)
 
+
 @app.route("/")
 def home():
     return render_template('base.html', title="Sample HTML")
 
+
 @app.route("/flavors")
 def flavors_search():
     query = request.args.get("title", "")
-    return json_search(query)
+    min_rating = float(request.args.get("min_rating", 0))
+    allergies = request.args.get("allergies", "")
+    allergy_list = [a.strip().lower() for a in allergies.split(",") if a]
+    return json_search(query, min_rating, allergy_list)
+
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

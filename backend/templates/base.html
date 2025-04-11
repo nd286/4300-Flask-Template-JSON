@@ -32,6 +32,24 @@
                 <img src="{{ url_for('static', filename='images/mag.png') }}">
                 <input placeholder="Search for an Ice Cream Flavor" id="filter-text-val" onkeyup="filterText()">
             </div>
+            <div id="filters-container" class="filter-options" style="display: none; margin-top: 10px;">
+                <label for="rating-filter">Minimum Rating:</label>
+                <select id="rating-filter" onchange="filterText()">
+                    <option value="0">Any</option>
+                    <option value="3">3+ stars</option>
+                    <option value="4">4+ stars</option>
+                    <option value="5">5 stars only</option>
+                </select>
+
+                <label for="allergy-filter">Allergies (exclude):</label>
+                <select id="allergy-filter" multiple onchange="filterText()">
+                    <option value="nuts">Nuts</option>
+                    <option value="dairy">Dairy</option>
+                    <option value="gluten">Gluten</option>
+                    <option value="soy">Soy</option>
+                    <option value="eggs">Eggs</option>
+                </select>
+            </div>
         </div>
         <div class="results-container">
             <div id="results-title" style="display:none;">Ice cream recommendations</div>
@@ -63,13 +81,22 @@
             document.getElementById('filter-text-val').focus();
         }
         function filterText() {
-            document.getElementById("answer-box").innerHTML = "";
-            var query = document.getElementById("filter-text-val").value;
+            const query = document.getElementById("filter-text-val").value.trim();
+            const filtersContainer = document.getElementById("filters-container");
+            filtersContainer.style.display = query.length > 0 ? "flex" : "none";
             if(query.trim() === ""){
                 document.getElementById("results-title").style.display = "none";
                 return;
             }
-            fetch("/flavors?" + new URLSearchParams({ title: query }).toString())
+            const minRating = document.getElementById("rating-filter").value;
+            const allergySelect = document.getElementById("allergy-filter");
+            const allergies = Array.from(allergySelect.selectedOptions).map(option => option.value);
+
+            fetch("/flavors?" + new URLSearchParams({
+                title: query,
+                min_rating: minRating,
+                allergies: allergies.join(",")
+            }).toString())
                 .then(response => response.json())
                 .then(data => {
                     if(data.length > 0){

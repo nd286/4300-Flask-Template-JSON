@@ -4,7 +4,7 @@ import os
 from flask import Flask, render_template, request
 from flask_cors import CORS
 import pandas as pd
-from svd_similarity import build_composite_svd_models, query_composite_svd_similarity
+from bert_similarity import build_document_embeddings, query_bert_similarity
 
 # Set file paths and environment variables.
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
@@ -19,9 +19,8 @@ with open(json_file_path, 'r') as file:
 # Convert the DataFrame records to a list of dictionaries.
 docs = flavors_df.to_dict(orient='records')
 
-# Build a unique flavors dictionary, keyed by "title".
-# Aggregate reviews (stored in the "text" field) so that each unique flavor
-# has a single combined review text.
+# Build a unique flavors dictionary (keyed by "title").  
+# For flavors with the same title, combine their review texts (the "text" field).
 unique_flavors = {}
 for doc in docs:
     title = doc.get("title", "").strip()
@@ -35,27 +34,18 @@ for doc in docs:
             "text": doc.get("text", "")
         }
     else:
-        # Append additional review text with a space separator.
         unique_flavors[title]["text"] += " " + doc.get("text", "")
 
-# Convert the unique flavors to a list.
+# Convert the unique flavors into a list (maintaining order).
 flavor_list = list(unique_flavors.values())
 
-# Build composite SVD models for each field.
-# The models will be built for: 
-#   - "description" (from key "description")
-#   - "subhead" (from key "subhead")
-#   - "ingredients" (using the field "ingredients_y")
-#   - "reviews" (using the aggregated "text" field)
-composite_models = build_composite_svd_models(flavor_list, n_components=50)
+# Define field weights for the composite embedding.
+# (These weights sum to 1.0; adjust as needed.)
+weights = {"description": 0.4, "subhead": 0.3, "ingredients": 0.1, "reviews": 0.2}
 
-# Define composite weights for each field.
-weights = {
-    "description": 0.4,
-    "subhead": 0.3,
-    "ingredients": 0.1,
-    "reviews": 0.2
-}
+# Build BERT-based composite embeddings for all unique flavor documents.
+# This loads a pre-trained model and computes a composite embedding for each document.
+model, doc_embeddings = build_document_embeddings(flavor_list, model_name='paraphrase-MiniLM-L6-v2', weights=weights)
 
 app = Flask(__name__)
 CORS(app)
@@ -63,17 +53,16 @@ CORS(app)
 def json_search(query: str) -> str:
     if not query.strip():
         return json.dumps([])
-    # Compute composite similarity scores for the query.
-    composite_scores = query_composite_svd_similarity(query, composite_models, weights)
     
-    # Build a list of scored flavors; include only documents with a non-zero score.
+    # Use BERT to compute similarity scores.
+    scores = query_bert_similarity(query, model, doc_embeddings)
+    
     scored_flavors = []
-    for idx, score in enumerate(composite_scores):
+    for idx, score in enumerate(scores):
         if score > 0:
             scored_flavors.append((score, flavor_list[idx]))
     scored_flavors.sort(key=lambda x: x[0], reverse=True)
     
-    # Prepare the top 10 recommendations.
     out = []
     for rec_num, (score, flavor) in enumerate(scored_flavors[:10], start=1):
         out.append({
@@ -83,7 +72,7 @@ def json_search(query: str) -> str:
             "subhead": flavor.get("subhead", ""),
             "ingredients_y": flavor.get("ingredients_y", ""),
             "rating": flavor.get("rating", 0),
-            "composite_score": score,
+            "bert_similarity_score": float(score),
             "reviews": flavor.get("text", "")
         })
     return json.dumps(out)
@@ -99,6 +88,7 @@ def flavors_search():
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)
+
 
 
 

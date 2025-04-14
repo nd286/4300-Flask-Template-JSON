@@ -1,5 +1,3 @@
-# svd_similarity.py
-
 import nltk
 
 try:
@@ -20,13 +18,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 from nltk.corpus import wordnet as wn
 
 def wordnet_normalize(token):
-    """
-    Normalize a token using WordNet.
-    
-    This function checks if any synset for the given token has a hypernym
-    whose lemma names include "dairy_product" or "dairy". If so, the token is
-    mapped to "dairy". Otherwise, the token is returned unchanged.
-    """
     synsets = wn.synsets(token)
     for syn in synsets:
         for hyper in syn.hypernyms():
@@ -36,21 +27,12 @@ def wordnet_normalize(token):
     return token
 
 def wordnet_improved_tokenize(text: str):
-    """
-    Tokenizer that uses WordNet to normalize tokens.
-    
-    """
     text = text.lower().strip()
-    
-
-    text = re.sub(r'\bnon-([a-z0-9]+)\b', r'not_\1', text)
-    text = re.sub(r'\b([a-z0-9]+)-free\b', r'not_\1', text)
-    text = re.sub(r'\b([a-z0-9]+)\s+free\b', r'not_\1', text)
-    
+    text = re.sub(r'\bnon[\s-]+([a-z0-9]+)\b', r'not_\1', text)
+    text = re.sub(r'\bnot[\s-]+([a-z0-9]+)\b', r'not_\1', text)
+    text = re.sub(r'\b([a-z0-9]+)[\s-]+free\b', r'not_\1', text)
     tokens = re.findall(r"\w+", text)
-    
     tokens = [wordnet_normalize(token) for token in tokens]
-    
     negation_words = {"not", "no", "never", "none", "without"}
     result = []
     skip_next = False
@@ -71,16 +53,6 @@ def improved_tokenize(text: str):
     return wordnet_improved_tokenize(text)
 
 def build_field_svd(corpus, n_components=300):
-    """
-    Build the SVD model for a given corpus using our improved tokenizer.
-    
-    Args:
-        corpus (List[str]): A list of document strings.
-        n_components (int): Number of SVD components. Default is set to 100.
-    
-    Returns:
-        tuple: (vectorizer, svd_model, doc_vectors)
-    """
     vectorizer = TfidfVectorizer(tokenizer=improved_tokenize, token_pattern=None)
     tfidf_matrix = vectorizer.fit_transform(corpus)
     n_comp = min(n_components, tfidf_matrix.shape[1] - 1) if tfidf_matrix.shape[1] > 1 else 1
@@ -89,16 +61,6 @@ def build_field_svd(corpus, n_components=300):
     return vectorizer, svd_model, doc_vectors
 
 def build_composite_svd_models(documents, n_components=100):
-    """
-    For a list of document dictionaries, build SVD models for each field:
-       - "description" from key "description"
-       - "subhead" from key "subhead"
-       - "ingredients" from key "ingredients_y"
-       - "reviews" from key "text"
-    
-    Returns:
-        dict: Mapping from field name to (vectorizer, svd_model, doc_vectors)
-    """
     desc_corpus = [doc.get("description", "") for doc in documents]
     subhead_corpus = [doc.get("subhead", "") for doc in documents]
     ingr_corpus = [doc.get("ingredients_y", "") for doc in documents]
@@ -112,18 +74,6 @@ def build_composite_svd_models(documents, n_components=100):
     return models
 
 def query_composite_svd_similarity(query, models, weights):
-    """
-    Compute composite similarity scores for a query across all fields using cosine similarity.
-    
-    Args:
-        query (str): The search query.
-        models (dict): Dictionary with keys "description", "subhead", "ingredients", "reviews".
-                       Each value is a tuple (vectorizer, svd_model, doc_vectors).
-        weights (dict): Field weights (e.g., {"description": 0.4, "subhead": 0.3, "ingredients": 0.1, "reviews": 0.2}).
-    
-    Returns:
-        numpy.ndarray: An array of composite similarity scores (one per document).
-    """
     if not query.strip():
         return np.array([])
     composite_scores = None
@@ -137,6 +87,7 @@ def query_composite_svd_similarity(query, models, weights):
         else:
             composite_scores += weighted_scores
     return composite_scores
+
 
 
 

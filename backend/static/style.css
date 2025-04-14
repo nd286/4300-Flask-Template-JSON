@@ -38,6 +38,10 @@ body {
   color: white;
   text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
 }
+#black {
+  color: black;
+  text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+}
 .google-colors {
   display: flex;
   align-items: center;
@@ -79,6 +83,9 @@ body {
 .results-container {
   width: 700px;
   margin-top: 200px;
+}
+#filters-container {
+  background-color: pink;
 }
 #results-title {
   font-family: 'Kanit', sans-serif;

@@ -33,7 +33,7 @@
                 <input placeholder="Search for an Ice Cream Flavor" id="filter-text-val" oninput="showFilters()">
             </div>
             <div id="filters-container" class="filter-options" style="display: none; margin-top: 10px;">
-                <label for="rating-filter">Minimum Rating:</label>
+                <label for="rating-filter" id="black" >Minimum Rating:</label>
                 <select id="rating-filter" onchange="filterText()">
                     <option value="0">Any</option>
                     <option value="2">1+ stars</option>
@@ -43,7 +43,7 @@
                     <option value="5">5 stars only</option>
                 </select>
 
-                <label for="allergy-filter">Allergies (exclude):</label>
+                <label for="allergy-filter" id="black" >Allergies (exclude):</label>
                 <select id="allergy-filter" multiple>
                     <option value="nuts">Nuts</option>
                     <option value="dairy">Dairy</option>

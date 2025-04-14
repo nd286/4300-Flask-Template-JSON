@@ -1,10 +1,22 @@
 body {
-    background-image: url("../static/images/background.jpg");
+    /* background-image: url("../static/images/background.jpg"); */
+    background-color: #f5cbc3;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-}
-.full-body-container {
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  
+  }
+  
+  /* colors:
+  Cream	#f6bf60	Dark Brownish Gray	#4E4B46
+  Light Cream	#f7eee2	Charcoal Gray	#333333
+  Mandy's Pink	#f5cbc3	Deep Burgundy	#6A2C2C
+  Cascade	#84a59d	Muted Navy	#2A3D66
+  Froly	#f28482	Olive Green	#4E5D56
+  */
+  
+  .full-body-container {
     position: absolute;
     top: 0;
     left: 0;
@@ -15,116 +27,220 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-#google-c {
+  }
+  
+  /* #google-c {
     color: #4285F4;
-}
-#google-s {
+  }
+  
+  #google-s {
     color: #DB4437;
-}
-#google-4 {
+  }
+  
+  #google-4 {
     color: #F4B400;
-}
-#google-3 {
+  }
+  
+  #google-3 {
     color: #4285F4;
-}
-#google-0-1 {
+  }
+  
+  #google-0-1 {
     color: #0F9D58;
-}
-#google-0-2 {
+  }
+  
+  #google-0-2 {
     color: #DB4437;
-}
-#white {
-    color: white;
-    text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
-}
-.google-colors {
+  } */
+  
+  #white {
+    color: #f7eee2;
+    text-shadow: -1px -1px 0 #333333, 1px -1px 0 #333333, -1px 1px 0 #333333, 1px 1px 0 #333333;
+  }
+  
+  .google-colors {
+    /* title box */
     display: flex;
     align-items: center;
-    font-size: 48px;
-    font-family: 'Open Sans', sans-serif;
-}
-.google-colors h1 {
+    font-size: 32px;
+    /* font-family: 'Open Sans', sans-serif; */
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', cursive;
+    padding-top: 100px;
+    padding-bottom: 32px;
+  }
+  
+  /* .google-colors h1 {
     margin-bottom: 0;
     margin-right: 3px;
-}
-.input-box {
+  } */
+  
+  h1 {
+    margin-bottom: 0;
+    color: #4E4B46;
+  }
+  
+  .input-box {
     border-radius: 50px;
-    border: 1px solid black;
+    border: 1px solid #4E4B46;
     display: flex;
     align-items: center;
     margin-top: 10px;
     padding: 12px;
-    width: 600px;
-    background-color: white;
-}
-.input-box img {
+    width: 700px;
+    background-color: #f7eee2;
+  }
+  
+  #filter-text-val {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  }
+  
+  .input-box img {
     height: 20px;
     width: 20px;
-}
-.top-text {
+  }
+  
+  .top-text {
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-.input-box input {
+  }
+  
+  .input-box input {
     width: 100%;
     margin-left: 10px;
     font-size: 16px;
     border: none;
     outline: 0;
-    background-color: white;
-    color: black;
-}
-.results-container {
+    background-color: #f7eee2;
+    color: #333333;
+  }
+  
+  .results-container {
     width: 700px;
     margin-top: 200px;
-}
-#results-title {
-    font-family: 'Kanit', sans-serif;
+  }
+  
+  #results-title {
+    /* font-family: 'Kanit', sans-serif; */
     font-size: 32px;
     margin-bottom: 10px;
-    color: black;
-    text-shadow: 1px 1px 2px white;
+    color: #4E4B46;
+    text-shadow: 1px 1px 2px #333333;
     text-align: center;
-}
-#answer-box {
+  }
+  
+  #answer-box {
     width: 100%;
-}
-.result {
+  }
+  
+  .result {
     margin-bottom: 15px;
-    border: 1px solid #ccc;
+    /* border: 1px solid #ccc; */
+    border: 1px solid #f6bf60;
     border-radius: 5px;
-    background: rgba(255, 255, 255, 0.9);
-}
-.result-header {
+    /* background: rgba(255, 255, 255, 0.9); */
+    background: #f7eee2
+  }
+  
+  .result-header {
     cursor: pointer;
     padding: 8px;
-    background: #f0f0f0;
+    background: #f6bf60;
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-.result-header:hover {
-    background: #e0e0e0;
-}
-.result-details {
+  }
+  
+  .result-header:hover {
+    background: #f6bf60;
+  }
+  
+  .result-details {
     padding: 8px;
-    border-top: 1px solid #ccc;
-}
-.episode-title {
-    font-family: 'Kanit', sans-serif;
+    border-top: 1px solid #f6bf60;
+  }
+  
+  .episode-title {
+    /* font-family: 'Kanit', sans-serif; */
     margin: 0;
-}
-.episode-desc,
-.episode-subhead,
-.episode-ingredients,
-.episode-rating {
-    font-family: 'Montserrat', sans-serif;
+  }
+  
+  .episode-desc,
+  .episode-subhead,
+  .episode-ingredients,
+  .episode-rating {
+    /* font-family: 'Montserrat', sans-serif; */
     margin: 4px 0;
-}
-.toggle-icon {
+  }
+  
+  .toggle-icon {
     font-size: 18px;
     margin-left: 10px;
-}
-
+  }
+  
+  
+  .horicontainer {
+    width: 700px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-top: 8px;
+  }
+  
+  .vertigroup {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    margin-right: 24px;
+  }
+  
+  .horigroup {
+    display: flex;
+    flex-direction: row;
+    align-items: top;
+    margin-right: auto;
+  
+  }
+  
+  #allergy-filter {
+    background-color: #f7eee2;
+    border-radius: 12px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    padding: 4px;
+    padding-right: 8px;
+    padding-left: 8px;
+    color: #333333;
+    margin-top: 8px;
+  }
+  
+  #rating-filter {
+    background-color: #f7eee2;
+    border-radius: 12px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    padding: 4px;
+    color: #333333;
+    margin-top: 8px;
+  }
+  
+  #search {
+    width: fit-content;
+    margin-top: 24px;
+    margin-bottom: auto;
+    padding: 8px;
+    padding-right: 16px;
+    padding-left: 16px;
+    border-radius: 16px;
+    border-width: 1px;
+    background-color: #f28482;
+    color: #333333;
+  }
+  
+  #search:hover {
+    background-color: #f6bf60;
+    cursor: pointer;
+  }
+  
+  button {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  }
+  

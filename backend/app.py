@@ -66,7 +66,6 @@ def make_safe_id(brand, title):
 def json_search(query: str, min_rating=0, allergy_list=[]) -> str:
     if not query.strip():
         return json.dumps([])
-
     composite_scores = query_composite_svd_similarity(
         query, composite_models, weights)
     scored_flavors = []
@@ -74,13 +73,11 @@ def json_search(query: str, min_rating=0, allergy_list=[]) -> str:
         if score > 0:
             scored_flavors.append((score, flavor_list[idx]))
     scored_flavors.sort(key=lambda x: x[0], reverse=True)
-
     filtered_flavors = []
     for score, flavor in scored_flavors:
         if float(flavor.get("rating", 0)) < min_rating:
             continue
         ingredients = flavor.get("ingredients_y", "").lower()
-
         exclude = False
         for allergy in allergy_list:
             keywords = ALLERGY_KEYWORDS.get(allergy.lower(), [])
@@ -89,11 +86,9 @@ def json_search(query: str, min_rating=0, allergy_list=[]) -> str:
                 break
         if exclude:
             continue
-
         filtered_flavors.append((score, flavor))
         if len(filtered_flavors) >= 10:
             break
-
     out = []
     for score, flavor in filtered_flavors:
         norm_brand = normalize_brand(flavor.get("brand", ""))

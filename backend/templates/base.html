@@ -64,9 +64,7 @@
             var el = document.getElementById(id);
             el.style.display = (el.style.display === "none" ? "block" : "none");
         }
-        // Answer box template: displays brand right before title.
         function answerBoxTemplate(safeId, brand, title, description, subhead, ingredients_y, rating) {            // Create a unique id based on brand and title.
-            var safeId = (brand + "-" + title).replace(/\s+/g, '-').toLowerCase();
             return `<div class="result">
                         <div class="result-header" onclick="toggleDetails('details-${safeId}')">
                             <h3 class="episode-title">${brand} ${title} <span class="toggle-icon">▼</span></h3>

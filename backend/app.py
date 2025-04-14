@@ -45,9 +45,7 @@ weights = {
 app = Flask(__name__)
 CORS(app)
 
-
 def normalize_brand(brand):
-    """Convert brand codes to full names and apply title case."""
     brand_lower = brand.lower()
     if brand_lower == "bj":
         return "Ben and Jerry's"
@@ -56,34 +54,26 @@ def normalize_brand(brand):
     else:
         return brand.title()
 
-
-ALLERGY_KEYWORDS = {
-    "dairy": ["milk", "cream", "cheese", "butter", "whey", "casein", "yogurt"],
-    "nuts": ["peanut", "almond", "cashew", "walnut", "hazelnut", "macadamia", "pecan", "pistachio", "nut"],
-    "gluten": ["wheat", "barley", "rye", "spelt", "farro", "malt"],
-    "soy": ["soy", "soya", "soybean", "edamame", "tofu"],
-    "eggs": ["egg", "egg yolk", "egg white", "albumin"]
-}
-
+def make_safe_id(brand, title):
+    raw = f"{brand}-{title}"
+    raw = raw.replace(" ", "-")
+    safe = "".join(ch for ch in raw if ch.isalnum() or ch == "-").lower()
+    return safe
 
 def json_search(query: str, min_rating=0, allergy_list=[]) -> str:
     if not query.strip():
         return json.dumps([])
-
-    composite_scores = query_composite_svd_similarity(
-        query, composite_models, weights)
+    composite_scores = query_composite_svd_similarity(query, composite_models, weights)
     scored_flavors = []
     for idx, score in enumerate(composite_scores):
         if score > 0:
             scored_flavors.append((score, flavor_list[idx]))
     scored_flavors.sort(key=lambda x: x[0], reverse=True)
-
     filtered_flavors = []
     for score, flavor in scored_flavors:
         if float(flavor.get("rating", 0)) < min_rating:
             continue
         ingredients = flavor.get("ingredients_y", "").lower()
-
         exclude = False
         for allergy in allergy_list:
             keywords = ALLERGY_KEYWORDS.get(allergy.lower(), [])
@@ -92,16 +82,16 @@ def json_search(query: str, min_rating=0, allergy_list=[]) -> str:
                 break
         if exclude:
             continue
-
         filtered_flavors.append((score, flavor))
         if len(filtered_flavors) >= 10:
             break
-
     out = []
     for score, flavor in filtered_flavors:
+        norm_brand = normalize_brand(flavor.get("brand", ""))
         out.append({
+            "safeId": make_safe_id(norm_brand, flavor["title"]),
             "title": flavor["title"].title(),
-            "brand": normalize_brand(flavor.get("brand", "")),
+            "brand": norm_brand,
             "description": flavor.get("description", ""),
             "subhead": flavor.get("subhead", ""),
             "ingredients_y": flavor.get("ingredients_y", ""),
@@ -111,11 +101,17 @@ def json_search(query: str, min_rating=0, allergy_list=[]) -> str:
         })
     return json.dumps(out)
 
+ALLERGY_KEYWORDS = {
+    "dairy": ["milk", "cream", "cheese", "butter", "whey", "casein", "yogurt"],
+    "nuts": ["peanut", "almond", "cashew", "walnut", "hazelnut", "macadamia", "pecan", "pistachio", "nut"],
+    "gluten": ["wheat", "barley", "rye", "spelt", "farro", "malt"],
+    "soy": ["soy", "soya", "soybean", "edamame", "tofu"],
+    "eggs": ["egg", "egg yolk", "egg white", "albumin"]
+}
 
 @app.route("/")
 def home():
     return render_template('base.html', title="Sample HTML")
-
 
 @app.route("/flavors")
 def flavors_search():
@@ -125,6 +121,7 @@ def flavors_search():
     allergy_list = [a.strip().lower() for a in allergies.split(",") if a]
     return json_search(query, min_rating, allergy_list)
 
-
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)
+
+

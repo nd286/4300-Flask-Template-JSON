@@ -42,7 +42,6 @@
                     <option value="4">4+ stars</option>
                     <option value="5">5 stars only</option>
                 </select>
-
                 <label for="allergy-filter">Allergies (exclude):</label>
                 <select id="allergy-filter" multiple>
                     <option value="nuts">Nuts</option>
@@ -64,10 +63,7 @@
             var el = document.getElementById(id);
             el.style.display = (el.style.display === "none" ? "block" : "none");
         }
-        // Answer box template: displays brand right before title.
-        function answerBoxTemplate(brand, title, description, subhead, ingredients_y, rating) {
-            // Create a unique id based on brand and title.
-            var safeId = (brand + "-" + title).replace(/\s+/g, '-').toLowerCase();
+        function answerBoxTemplate(safeId, brand, title, description, subhead, ingredients_y, rating) {
             return `<div class="result">
                         <div class="result-header" onclick="toggleDetails('details-${safeId}')">
                             <h3 class="episode-title">${brand} ${title} <span class="toggle-icon">▼</span></h3>
@@ -94,18 +90,15 @@
                 document.getElementById("answer-box").innerHTML = "";
             }
         }
-
         function fetchFlavors() {
             const query = document.getElementById("filter-text-val").value.trim();
             const rating = document.getElementById("rating-filter").value;
             const allergySelect = document.getElementById("allergy-filter");
             const allergies = Array.from(allergySelect.selectedOptions).map(option => option.value);
-
             if (query === "" || rating === "") {
                 alert("Please enter a flavor and select a minimum rating.");
                 return;
             }
-
             fetch("/flavors?" + new URLSearchParams({
                 title: query,
                 min_rating: rating,
@@ -115,23 +108,14 @@
             .then(data => {
                 const answerBox = document.getElementById("answer-box");
                 answerBox.innerHTML = "";
-
                 if (data.length > 0) {
                     document.getElementById("results-title").style.display = "block";
                 } else {
                     document.getElementById("results-title").style.display = "none";
                 }
-
                 data.forEach(row => {
                     let tempDiv = document.createElement("div");
-                    tempDiv.innerHTML = answerBoxTemplate(
-                        row.brand,
-                        row.title,
-                        row.description,
-                        row.subhead,
-                        row.ingredients_y,
-                        row.rating
-                    );
+                    tempDiv.innerHTML = answerBoxTemplate(row.safeId, row.brand, row.title, row.description, row.subhead, row.ingredients_y, row.rating);
                     answerBox.appendChild(tempDiv);
                 });
             });
@@ -139,3 +123,4 @@
     </script>
 </body>
 </html>
+

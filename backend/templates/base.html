@@ -7,13 +7,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap" rel="stylesheet">
 </head>
-
 <body>
     <div class="full-body-container">
         <div class="top-text">
             <div class="google-colors">
-                <h1>Dairy Godmothers</h1>
-                <!-- <h1 id="white">A</h1>
+                <h1 id="white">D</h1>
+                <h1 id="white">A</h1>
                 <h1 id="white">I</h1>
                 <h1 id="white">R</h1>
                 <h1 id="white">Y</h1>
@@ -27,43 +26,32 @@
                 <h1 id="white">H</h1>
                 <h1 id="white">E</h1>
                 <h1 id="white">R</h1>
-                <h1 id="white">S</h1> -->
+                <h1 id="white">S</h1>
             </div>
             <div class="input-box" onclick="sendFocus()">
-                <!-- <img src="{{ url_for('static', filename='images/mag.png') }}"> -->
-                <img src="images/mag.png" alt="">
+                <img src="{{ url_for('static', filename='images/mag.png') }}">
                 <input placeholder="Search for an Ice Cream Flavor" id="filter-text-val" oninput="showFilters()">
             </div>
             <div id="filters-container" class="filter-options" style="display: none; margin-top: 10px;">
-                <div class="horicontainer">
-                    <div class="horigroup">
-                        <div class="vertigroup">
-                            <label for="rating-filter">Minimum Rating:</label>
-                            <select id="rating-filter" onchange="filterText()">
-                                <option value="0">Any</option>
-                                <option value="2">1+ stars</option>
-                                <option value="2">2+ stars</option>
-                                <option value="3">3+ stars</option>
-                                <option value="4">4+ stars</option>
-                                <option value="5">5 stars only</option>
-                            </select>
-                        </div>
+                <label for="rating-filter">Minimum Rating:</label>
+                <select id="rating-filter" onchange="filterText()">
+                    <option value="0">Any</option>
+                    <option value="2">1+ stars</option>
+                    <option value="2">2+ stars</option>
+                    <option value="3">3+ stars</option>
+                    <option value="4">4+ stars</option>
+                    <option value="5">5 stars only</option>
+                </select>
 
-                        <div class="vertigroup">
-                            <label for="allergy-filter">Allergies (exclude):</label>
-                            <select id="allergy-filter" multiple>
-                                <option value="nuts">Nuts</option>
-                                <option value="dairy">Dairy</option>
-                                <option value="gluten">Gluten</option>
-                                <option value="soy">Soy</option>
-                                <option value="eggs">Eggs</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button id="search" onclick="fetchFlavors()">Find My Flavors</button>
-                </div>
-                <!-- <button onclick="fetchFlavors()" style="margin-left: 10px;">Find My Flavors</button> -->
-
+                <label for="allergy-filter">Allergies (exclude):</label>
+                <select id="allergy-filter" multiple>
+                    <option value="nuts">Nuts</option>
+                    <option value="dairy">Dairy</option>
+                    <option value="gluten">Gluten</option>
+                    <option value="soy">Soy</option>
+                    <option value="eggs">Eggs</option>
+                </select>
+                <button onclick="fetchFlavors()" style="margin-left: 10px;">Find My Flavors</button>
             </div>
         </div>
         <div class="results-container">
@@ -76,7 +64,9 @@
             var el = document.getElementById(id);
             el.style.display = (el.style.display === "none" ? "block" : "none");
         }
-        function answerBoxTemplate(safeId, brand, title, description, subhead, ingredients_y, rating) {
+        // Answer box template: displays brand right before title.
+        function answerBoxTemplate(safeId, brand, title, description, subhead, ingredients_y, rating) {            // Create a unique id based on brand and title.
+            var safeId = (brand + "-" + title).replace(/\s+/g, '-').toLowerCase();
             return `<div class="result">
                         <div class="result-header" onclick="toggleDetails('details-${safeId}')">
                             <h3 class="episode-title">${brand} ${title} <span class="toggle-icon">▼</span></h3>
@@ -103,46 +93,49 @@
                 document.getElementById("answer-box").innerHTML = "";
             }
         }
+
         function fetchFlavors() {
             const query = document.getElementById("filter-text-val").value.trim();
             const rating = document.getElementById("rating-filter").value;
             const allergySelect = document.getElementById("allergy-filter");
             const allergies = Array.from(allergySelect.selectedOptions).map(option => option.value);
+
             if (query === "" || rating === "") {
                 alert("Please enter a flavor and select a minimum rating.");
                 return;
             }
+
             fetch("/flavors?" + new URLSearchParams({
                 title: query,
                 min_rating: rating,
                 allergies: allergies.join(",")
             }).toString())
-                .then(response => response.json())
-                .then(data => {
-                    const answerBox = document.getElementById("answer-box");
-                    answerBox.innerHTML = "";
+            .then(response => response.json())
+            .then(data => {
+                const answerBox = document.getElementById("answer-box");
+                answerBox.innerHTML = "";
 
-                    if (data.length > 0) {
-                        document.getElementById("results-title").style.display = "block";
-                    } else {
-                        document.getElementById("results-title").style.display = "none";
-                    }
+                if (data.length > 0) {
+                    document.getElementById("results-title").style.display = "block";
+                } else {
+                    document.getElementById("results-title").style.display = "none";
+                }
 
-                    data.forEach(row => {
-                        let tempDiv = document.createElement("div");
-                        tempDiv.innerHTML = answerBoxTemplate(
-                            row.brand,
-                            row.title,
-                            row.description,
-                            row.subhead,
-                            row.ingredients_y,
-                            row.rating
-                        );
-                        answerBox.appendChild(tempDiv);
-                    });
+                data.forEach(row => {
+                    let tempDiv = document.createElement("div");
+                    tempDiv.innerHTML = answerBoxTemplate(
+                        row.brand,
+                        row.title,
+                        row.description,
+                        row.subhead,
+                        row.ingredients_y,
+                        row.rating
+                    );
+                    tempDiv.innerHTML = answerBoxTemplate(row.safeId, row.brand, row.title, row.description, row.subhead, row.ingredients_y, row.rating);
+                    answerBox.appendChild(tempDiv);
                 });
+            });
         }
     </script>
 </body>
-
 </html>

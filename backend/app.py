@@ -36,15 +36,22 @@ flavor_list = list(unique_flavors.values())
 composite_models = build_composite_svd_models(flavor_list, n_components=300)
 
 weights = {
-    "description": 0.4,
-    "subhead": 0.3,
-    "ingredients": 0.2,
-    "reviews": 0.1
+    "description": 0.1,
+    "subhead": 0.4,
+    "ingredients": 0.3,
+    "reviews": 0.2
 }
 
 app = Flask(__name__)
 CORS(app)
 
+ALLERGY_KEYWORDS = {
+    "dairy": ["milk", "cream", "cheese", "butter", "whey", "casein", "yogurt"],
+    "nuts": ["peanut", "almond", "cashew", "walnut", "hazelnut", "macadamia", "pecan", "pistachio", "nut"],
+    "gluten": ["wheat", "barley", "rye", "spelt", "farro", "malt"],
+    "soy": ["soy", "soya", "soybean", "edamame", "tofu"],
+    "eggs": ["egg", "egg yolk", "egg white", "albumin"]
+}
 
 def normalize_brand(brand):
     brand_lower = brand.lower()
@@ -55,19 +62,16 @@ def normalize_brand(brand):
     else:
         return brand.title()
 
-
 def make_safe_id(brand, title):
     raw = f"{brand}-{title}"
     raw = raw.replace(" ", "-")
     safe = "".join(ch for ch in raw if ch.isalnum() or ch == "-").lower()
     return safe
 
-
 def json_search(query: str, min_rating=0, allergy_list=[]) -> str:
     if not query.strip():
         return json.dumps([])
-    composite_scores = query_composite_svd_similarity(
-        query, composite_models, weights)
+    composite_scores = query_composite_svd_similarity(query, composite_models, weights)
     scored_flavors = []
     for idx, score in enumerate(composite_scores):
         if score > 0:
@@ -105,20 +109,10 @@ def json_search(query: str, min_rating=0, allergy_list=[]) -> str:
         })
     return json.dumps(out)
 
-
-ALLERGY_KEYWORDS = {
-    "dairy": ["milk", "cream", "cheese", "butter", "whey", "casein", "yogurt"],
-    "nuts": ["peanut", "almond", "cashew", "walnut", "hazelnut", "macadamia", "pecan", "pistachio", "nut"],
-    "gluten": ["wheat", "barley", "rye", "spelt", "farro", "malt"],
-    "soy": ["soy", "soya", "soybean", "edamame", "tofu"],
-    "eggs": ["egg", "egg yolk", "egg white", "albumin"]
-}
-
-
 @app.route("/")
 def home():
-    return render_template('base.html', title="Sample HTML")
-
+    popup_text = "this is a popup"
+    return render_template('base.html', title="Dairy Godmothers", popup_text=popup_text)
 
 @app.route("/flavors")
 def flavors_search():
@@ -128,6 +122,6 @@ def flavors_search():
     allergy_list = [a.strip().lower() for a in allergies.split(",") if a]
     return json_search(query, min_rating, allergy_list)
 
-
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)
+

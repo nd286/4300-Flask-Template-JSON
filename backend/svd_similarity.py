@@ -1,10 +1,8 @@
 import nltk
-
 try:
     nltk.data.find("corpora/wordnet")
 except LookupError:
     nltk.download("wordnet")
-
 try:
     nltk.data.find("corpora/omw-1.4")
 except LookupError:
@@ -62,10 +60,9 @@ def build_field_svd(corpus, n_components=300):
 
 def build_composite_svd_models(documents, n_components=100):
     desc_corpus = [doc.get("description", "") for doc in documents]
-    subhead_corpus = [doc.get("subhead", "") for doc in documents]
+    subhead_corpus = [doc.get("subhead", "").strip() if doc.get("subhead", "").strip() != "" else doc.get("title", "") for doc in documents]
     ingr_corpus = [doc.get("ingredients_y", "") for doc in documents]
     reviews_corpus = [doc.get("text", "") for doc in documents]
-    
     models = {}
     models["description"] = build_field_svd(desc_corpus, n_components)
     models["subhead"] = build_field_svd(subhead_corpus, n_components)

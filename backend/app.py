@@ -32,15 +32,8 @@ for doc in docs:
         unique_flavors[title]["text"] += " " + doc.get("text", "")
 
 flavor_list = list(unique_flavors.values())
-
 composite_models = build_composite_svd_models(flavor_list, n_components=300)
-
-weights = {
-    "description": 0.1,
-    "subhead": 0.4,
-    "ingredients": 0.3,
-    "reviews": 0.2
-}
+weights = {"description": 0.1, "subhead": 0.4, "ingredients": 0.3, "reviews": 0.2}
 
 app = Flask(__name__)
 CORS(app)
@@ -54,74 +47,58 @@ ALLERGY_KEYWORDS = {
 }
 
 def normalize_brand(brand):
-    brand_lower = brand.lower()
-    if brand_lower == "bj":
-        return "Ben and Jerry's"
-    elif brand_lower == "hd":
-        return "Haagen Dazs"
-    else:
-        return brand.title()
+    b = brand.lower()
+    if b=="bj": return "Ben and Jerry's"
+    if b=="hd": return "Haagen Dazs"
+    return brand.title()
 
 def make_safe_id(brand, title):
-    raw = f"{brand}-{title}"
-    raw = raw.replace(" ", "-")
-    safe = "".join(ch for ch in raw if ch.isalnum() or ch == "-").lower()
-    return safe
+    raw = f"{brand}-{title}".replace(" ", "-")
+    return "".join(c for c in raw if c.isalnum() or c=="-").lower()
 
-def json_search(query: str, min_rating=0, allergy_list=[]) -> str:
+def json_search(query, min_rating=0, allergy_list=[]):
     if not query.strip():
         return json.dumps([])
-    composite_scores = query_composite_svd_similarity(query, composite_models, weights)
-    scored_flavors = []
-    for idx, score in enumerate(composite_scores):
-        if score > 0:
-            scored_flavors.append((score, flavor_list[idx]))
-    scored_flavors.sort(key=lambda x: x[0], reverse=True)
-    filtered_flavors = []
-    for score, flavor in scored_flavors:
-        if float(flavor.get("rating", 0)) < min_rating:
+    scores = query_composite_svd_similarity(query, composite_models, weights)
+    pairs = [(s, flavor_list[i]) for i,s in enumerate(scores) if s>0]
+    pairs.sort(key=lambda x:x[0], reverse=True)
+    filtered = []
+    for s,fl in pairs:
+        if float(fl["rating"])<min_rating: continue
+        ing = fl["ingredients_y"].lower()
+        if any(kw in ing for a in allergy_list for kw in ALLERGY_KEYWORDS.get(a,[])):
             continue
-        ingredients = flavor.get("ingredients_y", "").lower()
-        exclude = False
-        for allergy in allergy_list:
-            keywords = ALLERGY_KEYWORDS.get(allergy.lower(), [])
-            if any(kw in ingredients for kw in keywords):
-                exclude = True
-                break
-        if exclude:
-            continue
-        filtered_flavors.append((score, flavor))
-        if len(filtered_flavors) >= 10:
-            break
+        filtered.append((s,fl))
+        if len(filtered)>=10: break
     out = []
-    for score, flavor in filtered_flavors:
-        norm_brand = normalize_brand(flavor.get("brand", ""))
+    for s,fl in filtered:
+        nb = normalize_brand(fl["brand"])
         out.append({
-            "safeId": make_safe_id(norm_brand, flavor["title"]),
-            "title": flavor["title"].title(),
-            "brand": norm_brand,
-            "description": flavor.get("description", ""),
-            "subhead": flavor.get("subhead", ""),
-            "ingredients_y": flavor.get("ingredients_y", ""),
-            "rating": flavor.get("rating", 0),
-            "composite_score": score,
-            "reviews": flavor.get("text", "")
+            "safeId": make_safe_id(nb, fl["title"]),
+            "title": fl["title"].title(),
+            "brand": nb,
+            "description": fl["description"],
+            "subhead": fl["subhead"],
+            "ingredients_y": fl["ingredients_y"],
+            "rating": fl["rating"],
+            "composite_score": s,
+            "reviews": fl["text"]
         })
     return json.dumps(out)
 
 @app.route("/")
 def home():
     popup_text = "this is a popup"
-    return render_template('base.html', title="Dairy Godmothers", popup_text=popup_text)
+    return render_template("base.html", popup_text=popup_text)
 
 @app.route("/flavors")
 def flavors_search():
-    query = request.args.get("title", "")
-    min_rating = float(request.args.get("min_rating", 0))
-    allergies = request.args.get("allergies", "")
-    allergy_list = [a.strip().lower() for a in allergies.split(",") if a]
-    return json_search(query, min_rating, allergy_list)
+    q = request.args.get("title","")
+    mr = float(request.args.get("min_rating",0))
+    al = [a.strip().lower() for a in request.args.get("allergies","").split(",") if a]
+    return json_search(q, mr, al)
 
-if __name__ == '__main__':
+if __name__=='__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)
+
 

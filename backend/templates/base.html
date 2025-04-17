@@ -1,114 +1,170 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-    <title>{{ title }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&family=Great+Vibes&display=swap" rel="stylesheet">
+  <meta charset="utf-8">
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap" rel="stylesheet">
 </head>
-<body>
-    <header class="header-container">
-        <h1 class="main-title">Dairy Godmothers</h1>
-        <div class="search-bar">
-            <input placeholder="Search for an Ice Cream Flavor" id="filter-text-val" oninput="clearResults()">
-            <button onclick="fetchFlavors()">Find My Flavors</button>
-        </div>
-    </header>
-    <div class="content-container">
-        <aside class="filters-section">
-            <h2 class="filter-heading">Filters</h2>
-            <div class="filter-item">
-                <label for="rating-filter">Minimum Rating:</label>
-                <select id="rating-filter" onchange="clearResults()">
-                    <option value="0">Any</option>
-                    <option value="2">1+ stars</option>
-                    <option value="2">2+ stars</option>
-                    <option value="3">3+ stars</option>
-                    <option value="4">4+ stars</option>
-                    <option value="5">5 stars only</option>
-                </select>
-            </div>
-            <div class="filter-item">
-                <label>Allergies (exclude):</label>
-                <div class="checkbox-group">
-                    <label><input type="checkbox" name="allergy" value="nuts" onchange="clearResults()"> Nuts</label>
-                    <label><input type="checkbox" name="allergy" value="dairy" onchange="clearResults()"> Dairy</label>
-                    <label><input type="checkbox" name="allergy" value="gluten" onchange="clearResults()"> Gluten</label>
-                    <label><input type="checkbox" name="allergy" value="soy" onchange="clearResults()"> Soy</label>
-                    <label><input type="checkbox" name="allergy" value="eggs" onchange="clearResults()"> Eggs</label>
-                </div>
-            </div>
-        </aside>
-        <main class="results-section">
-            <h2 id="results-title" style="display:none;">Ice cream recommendations</h2>
-            <div id="answer-box"></div>
-        </main>
-    </div>
+<body class="initial-mode">
 
-    <div id="popup-modal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closePopup()">&times;</span>
-        <p>{{ popup_text }}</p>
+  <header class="header-container">
+    <h1 class="main-title">Dairy Godmothers</h1>
+    <div class="search-bar">
+      <input id="search-input" placeholder="Search for an Ice Cream Flavor">
+      <button id="search-button">Find My Flavors</button>
+    </div>
+    <div class="filters-inline">
+      <div class="filter-item">
+        <label for="rating-filter">Minimum Rating:</label>
+        <select id="rating-filter">
+          <option value="0">Any</option>
+          <option value="1">1+ stars</option>
+          <option value="2">2+ stars</option>
+          <option value="3">3+ stars</option>
+          <option value="4">4+ stars</option>
+          <option value="5">5 stars only</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label for="allergy-toggle">Allergies:</label>
+        <div class="allergy-dropdown">
+          <button id="allergy-toggle">Select… ▾</button>
+          <div class="dropdown-content">
+            <label><input type="checkbox" name="allergy" value="nuts"> Nuts</label>
+            <label><input type="checkbox" name="allergy" value="dairy"> Dairy</label>
+            <label><input type="checkbox" name="allergy" value="gluten"> Gluten</label>
+            <label><input type="checkbox" name="allergy" value="soy"> Soy</label>
+            <label><input type="checkbox" name="allergy" value="eggs"> Eggs</label>
+          </div>
+        </div>
       </div>
     </div>
+  </header>
 
-    <script>
-        function toggleDetails(id) {
-            var el = document.getElementById(id);
-            el.style.display = el.style.display === "none" ? "block" : "none";
-        }
-        function answerBoxTemplate(safeId, brand, title, description, subhead, ingredients_y, rating) {
-            return `<div class="result">
-                        <div class="result-header" onclick="toggleDetails('details-${safeId}')">
-                            <h3 class="episode-title">${brand} ${title} <span class="toggle-icon">🍨</span></h3>
-                        </div>
-                        <div class="result-details" id="details-${safeId}" style="display: none;">
-                            <p><strong>Description:</strong> ${description}</p>
-                            <p><strong>Ingredients:</strong> ${ingredients_y}</p>
-                            <p><strong>Rating:</strong> ${rating}</p>
-                            <button class="popup-button" onclick="openPopup()">More information about recommendation</button>
-                        </div>
-                    </div>`;
-        }
-        function clearResults() {
-            document.getElementById("answer-box").innerHTML = "";
-            document.getElementById("results-title").style.display = "none";
-        }
-        function fetchFlavors() {
-            const query = document.getElementById("filter-text-val").value.trim();
-            const rating = document.getElementById("rating-filter").value;
-            const allergies = Array.from(document.querySelectorAll('input[name="allergy"]:checked'))
-                                  .map(o => o.value);
-            if (!query || !rating) {
-                alert("Please enter a flavor and select a minimum rating.");
-                return;
-            }
-            fetch("/flavors?" + new URLSearchParams({
-                title: query,
-                min_rating: rating,
-                allergies: allergies.join(",")
-            })).then(r=>r.json()).then(data=>{
-                const box = document.getElementById("answer-box");
-                box.innerHTML = "";
-                document.getElementById("results-title").style.display = data.length ? "block":"none";
-                data.forEach(row=>{
-                    let d = document.createElement("div");
-                    d.innerHTML = answerBoxTemplate(
-                        row.safeId, row.brand, row.title,
-                        row.description, row.subhead,
-                        row.ingredients_y, row.rating
-                    );
-                    box.appendChild(d);
-                });
-            });
-        }
-        function openPopup() {
-            document.getElementById('popup-modal').style.display = 'flex';
-        }
-        function closePopup() {
-            document.getElementById('popup-modal').style.display = 'none';
-        }
-    </script>
+  <div class="content">
+    <aside class="filters-sidebar">
+      <h2>Filters</h2>
+      <div class="filter-item">
+        <label for="rating-filter-2">Minimum Rating:</label>
+        <select id="rating-filter-2">
+          <option value="0">Any</option>
+          <option value="1">1+ stars</option>
+          <option value="2">2+ stars</option>
+          <option value="3">3+ stars</option>
+          <option value="4">4+ stars</option>
+          <option value="5">5 stars only</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>Allergies:</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="allergy-2" value="nuts"> Nuts</label>
+          <label><input type="checkbox" name="allergy-2" value="dairy"> Dairy</label>
+          <label><input type="checkbox" name="allergy-2" value="gluten"> Gluten</label>
+          <label><input type="checkbox" name="allergy-2" value="soy"> Soy</label>
+          <label><input type="checkbox" name="allergy-2" value="eggs"> Eggs</label>
+        </div>
+      </div>
+    </aside>
+    <main class="results-section">
+      <h2 id="results-title" style="display:none;">Ice cream recommendations</h2>
+      <div id="answer-box"></div>
+    </main>
+  </div>
+
+  <div id="popup-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closePopup()">&times;</span>
+      <p>{{ popup_text }}</p>
+    </div>
+  </div>
+
+  <script>
+    let firstSearch = true;
+
+    document.getElementById('allergy-toggle').addEventListener('click', ()=> {
+      document.querySelector('.dropdown-content').classList.toggle('show');
+    });
+    window.onclick = e => {
+      if (!e.target.matches('#allergy-toggle')) {
+        document.querySelector('.dropdown-content').classList.remove('show');
+      }
+    };
+
+    function clearResults() {
+      document.getElementById("answer-box").innerHTML = "";
+      document.getElementById("results-title").style.display = "none";
+    }
+
+    function toggleDetails(id) {
+      const el = document.getElementById(id);
+      el.style.display = el.style.display==='none'?'block':'none';
+    }
+
+    function answerBoxTemplate(safeId, brand, title, description, ingredients_y, rating) {
+      return `
+      <div class="result">
+        <div class="result-header" onclick="toggleDetails('details-${safeId}')">
+          <h3 class="episode-title">${brand} ${title} <span class="toggle-icon">🍨</span></h3>
+        </div>
+        <div class="result-details" id="details-${safeId}" style="display:none;">
+          <p><strong>Description:</strong> ${description}</p>
+          <p><strong>Ingredients:</strong> ${ingredients_y}</p>
+          <p><strong>Rating:</strong> ${rating}</p>
+          <button class="popup-button" onclick="openPopup()">More information about recommendation</button>
+        </div>
+      </div>`;
+    }
+
+    function openPopup() {
+      document.getElementById('popup-modal').style.display = 'flex';
+    }
+    function closePopup() {
+      document.getElementById('popup-modal').style.display = 'none';
+    }
+
+    function fetchFlavors() {
+      const query = document.getElementById("search-input").value.trim();
+      const rating = document.getElementById("rating-filter").value;
+      const allergies = Array.from(document.querySelectorAll('input[name="allergy"]:checked'))
+                            .map(cb => cb.value);
+
+      if (!query) return alert("Please enter a flavor.");
+      clearResults();
+
+      if (firstSearch) {
+        document.body.classList.remove('initial-mode');
+        document.body.classList.add('results-mode');
+        firstSearch = false;
+      }
+
+      fetch("/flavors?" + new URLSearchParams({
+        title: query,
+        min_rating: rating,
+        allergies: allergies.join(',')
+      }))
+      .then(r=>r.json())
+      .then(data=>{
+        const box = document.getElementById("answer-box");
+        if (data.length) document.getElementById("results-title").style.display = "block";
+        data.forEach(r=>{
+          box.insertAdjacentHTML('beforeend',
+            answerBoxTemplate(r.safeId, r.brand, r.title, r.description, r.ingredients_y, r.rating)
+          );
+        });
+      });
+    }
+
+    document.getElementById('search-input').addEventListener('input', clearResults);
+    document.getElementById('rating-filter').addEventListener('change', clearResults);
+    document.querySelectorAll('input[name="allergy"]').forEach(cb=>
+      cb.addEventListener('change', clearResults)
+    );
+    document.getElementById('search-button').addEventListener('click', fetchFlavors);
+  </script>
 </body>
 </html>
+

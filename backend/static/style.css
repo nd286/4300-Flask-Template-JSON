@@ -1,28 +1,15 @@
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing: border-box; margin:0; padding:0; }
 
 body {
   font-family: 'Open Sans', sans-serif;
   background-color: #f5cbc3;
 }
 
-body.initial-mode .content {
-  display: none;
-}
+body.initial-mode .content { display: none; }
 body.results-mode .filters-inline,
-body.initial-only {
-  display: none;
-}
-body.results-mode .content {
-  display: flex;
-}
-body.results-mode {
-  background-color: #fde8ec;
-}
+body.initial-only { display: none; }
+body.results-mode .content { display: flex; }
+body.results-mode { background-color: #fde8ec; }
 
 .header-container {
   width: 100%;
@@ -42,31 +29,24 @@ body.results-mode .header-container {
   text-align: left;
   padding: 20px;
 }
+
 .main-title {
   font-family: 'Great Vibes', cursive;
 }
-body.initial-mode .main-title {
-  font-size: 72px;
-}
-body.results-mode .main-title {
-  font-size: 32px;
-  color: #3D3D3D;
-}
+body.initial-mode .main-title { font-size: 72px; }
+body.results-mode .main-title { font-size: 32px; color: #3D3D3D; }
 
 .search-bar {
   display: inline-flex;
 }
 body.initial-mode .search-bar {
-  width: 80%;
-  max-width: 600px;
-  justify-content: center;
+  width: 80%; max-width: 600px; justify-content: center;
 }
 body.results-mode .search-bar {
   margin-top: 10px;
 }
 .search-bar input {
-  flex: 1;
-  padding: 12px 16px;
+  flex: 1; padding: 12px 16px;
   border: none;
   border-radius: 8px 0 0 8px;
   font-size: 16px;
@@ -88,9 +68,7 @@ body.results-mode .search-bar {
   display: inline-flex;
   gap: 20px;
 }
-.filters-inline .filter-item {
-  display: inline-block;
-}
+.filters-inline .filter-item { display: inline-block; }
 .filters-inline select {
   padding: 4px 8px;
   min-width: 200px;
@@ -115,9 +93,7 @@ body.results-mode .search-bar {
   width: 100%;
   box-sizing: border-box;
 }
-.dropdown-content.show {
-  display: block;
-}
+.dropdown-content.show { display: block; }
 .dropdown-content label {
   display: block;
   margin-bottom: 5px;
@@ -133,15 +109,10 @@ body.results-mode .search-bar {
   border-radius: 8px;
   margin-right: 20px;
 }
-.filters-sidebar h2 {
-  margin-bottom: 10px;
-}
-.filters-sidebar .filter-item {
-  margin-bottom: 15px;
-}
+.filters-sidebar h2 { margin-bottom: 10px; }
+.filters-sidebar .filter-item { margin-bottom: 15px; }
 .filters-sidebar select {
-  width: 100%;
-  padding: 4px 8px;
+  width: 100%; padding: 4px 8px;
 }
 .checkbox-group label {
   display: block;
@@ -149,12 +120,8 @@ body.results-mode .search-bar {
   font-size: 14px;
 }
 
-.results-section {
-  flex: 1;
-}
-#results-title {
-  margin-bottom: 15px;
-}
+.results-section { flex: 1; }
+#results-title { margin-bottom: 15px; }
 #answer-box {
   display: flex;
   flex-direction: column;

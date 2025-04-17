@@ -47,6 +47,7 @@ body.results-mode .header-container {
   margin: 0 auto 16px;
   max-width: 200px;
   height: auto;
+  background-color: #f5cbc3; 
 }
 
 .main-title {

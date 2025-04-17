@@ -11,27 +11,22 @@
 <body class="initial-mode">
 
   <header class="header-container">
-    <!-- logo only on initial mode -->
-    <img src="{{ url_for('static', filename='images/Dairy Godmother logo.png') }}"
-         alt="Dairy Godmother Logo"
-         class="logo-image">
-    <h1 class="main-title">Dairy Godmothers</h1>
-
+    <img src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Dairy Godmother Logo" class="logo-image">
+    <h1 class="main-title">Dairy Godmothers</h1>
     <div class="search-bar">
       <input id="search-input" placeholder="Search for an Ice Cream Flavor">
-      <button id="search-button">Find My Flavors</button>
+      <button id="search-button">Find My Flavors</button>
     </div>
-
     <div class="filters-inline">
       <div class="filter-item">
         <label for="rating-filter">Minimum Rating:</label>
         <select id="rating-filter">
           <option value="0">Any</option>
-          <option value="1">1+ stars</option>
-          <option value="2">2+ stars</option>
-          <option value="3">3+ stars</option>
-          <option value="4">4+ stars</option>
-          <option value="5">5 stars only</option>
+          <option value="1">1+ stars</option>
+          <option value="2">2+ stars</option>
+          <option value="3">3+ stars</option>
+          <option value="4">4+ stars</option>
+          <option value="5">5 stars only</option>
         </select>
       </div>
       <div class="filter-item">
@@ -57,11 +52,11 @@
         <label for="rating-filter-2">Minimum Rating:</label>
         <select id="rating-filter-2">
           <option value="0">Any</option>
-          <option value="1">1+ stars</option>
-          <option value="2">2+ stars</option>
-          <option value="3">3+ stars</option>
-          <option value="4">4+ stars</option>
-          <option value="5">5 stars only</option>
+          <option value="1">1+ stars</option>
+          <option value="2">2+ stars</option>
+          <option value="3">3+ stars</option>
+          <option value="4">4+ stars</option>
+          <option value="5">5 stars only</option>
         </select>
       </div>
       <div class="filter-item">
@@ -91,14 +86,14 @@
   <script>
     let firstSearch = true;
 
-    document.getElementById('allergy-toggle').addEventListener('click', ()=> {
+    document.getElementById('allergy-toggle').addEventListener('click', () => {
       document.querySelector('.dropdown-content').classList.toggle('show');
     });
-    window.onclick = e => {
+    window.addEventListener('click', e => {
       if (!e.target.matches('#allergy-toggle')) {
         document.querySelector('.dropdown-content').classList.remove('show');
       }
-    };
+    });
 
     function clearResults() {
       document.getElementById("answer-box").innerHTML = "";
@@ -107,7 +102,7 @@
 
     function toggleDetails(id) {
       const el = document.getElementById(id);
-      el.style.display = el.style.display==='none'?'block':'none';
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
 
     function answerBoxTemplate(safeId, brand, title, description, ingredients_y, rating) {
@@ -142,8 +137,7 @@
       clearResults();
 
       if (firstSearch) {
-        document.body.classList.remove('initial-mode');
-        document.body.classList.add('results-mode');
+        document.body.classList.replace('initial-mode','results-mode');
         firstSearch = false;
       }
 
@@ -152,12 +146,13 @@
         min_rating: rating,
         allergies: allergies.join(',')
       }))
-      .then(r=>r.json())
-      .then(data=>{
+      .then(r => r.json())
+      .then(data => {
         const box = document.getElementById("answer-box");
         if (data.length) document.getElementById("results-title").style.display = "block";
-        data.forEach(r=>{
-          box.insertAdjacentHTML('beforeend',
+        data.forEach(r => {
+          box.insertAdjacentHTML(
+            'beforeend',
             answerBoxTemplate(r.safeId, r.brand, r.title, r.description, r.ingredients_y, r.rating)
           );
         });
@@ -166,7 +161,7 @@
 
     document.getElementById('search-input').addEventListener('input', clearResults);
     document.getElementById('rating-filter').addEventListener('change', clearResults);
-    document.querySelectorAll('input[name="allergy"]').forEach(cb=>
+    document.querySelectorAll('input[name="allergy"]').forEach(cb =>
       cb.addEventListener('change', clearResults)
     );
     document.getElementById('search-button').addEventListener('click', fetchFlavors);

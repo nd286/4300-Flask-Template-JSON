@@ -11,11 +11,17 @@
 <body class="initial-mode">
 
   <header class="header-container">
+    <!-- logo only on initial mode -->
+    <img src="{{ url_for('static', filename='images/Dairy Godmother logo.png') }}"
+         alt="Dairy Godmother Logo"
+         class="logo-image">
     <h1 class="main-title">Dairy Godmothers</h1>
+
     <div class="search-bar">
       <input id="search-input" placeholder="Search for an Ice Cream Flavor">
       <button id="search-button">Find My Flavors</button>
     </div>
+
     <div class="filters-inline">
       <div class="filter-item">
         <label for="rating-filter">Minimum Rating:</label>
@@ -85,8 +91,7 @@
   <script>
     let firstSearch = true;
 
-    // allergy dropdown toggle
-    document.getElementById('allergy-toggle').addEventListener('click', () => {
+    document.getElementById('allergy-toggle').addEventListener('click', ()=> {
       document.querySelector('.dropdown-content').classList.toggle('show');
     });
     window.onclick = e => {
@@ -127,26 +132,12 @@
       document.getElementById('popup-modal').style.display = 'none';
     }
 
-    function getRating() {
-      if (document.body.classList.contains('initial-mode')) {
-        return document.getElementById('rating-filter').value;
-      }
-      return document.getElementById('rating-filter-2').value;
-    }
-
-    function getAllergies() {
-      if (document.body.classList.contains('initial-mode')) {
-        return Array.from(document.querySelectorAll('input[name="allergy"]:checked'))
-                    .map(cb => cb.value);
-      }
-      return Array.from(document.querySelectorAll('input[name="allergy-2"]:checked'))
-                  .map(cb => cb.value);
-    }
-
     function fetchFlavors() {
       const query = document.getElementById("search-input").value.trim();
-      const rating = getRating();
-      const allergies = getAllergies();
+      const rating = document.getElementById("rating-filter").value;
+      const allergies = Array.from(document.querySelectorAll('input[name="allergy"]:checked'))
+                            .map(cb => cb.value);
+
       if (!query) return alert("Please enter a flavor.");
       clearResults();
 
@@ -161,11 +152,11 @@
         min_rating: rating,
         allergies: allergies.join(',')
       }))
-      .then(r => r.json())
-      .then(data => {
+      .then(r=>r.json())
+      .then(data=>{
         const box = document.getElementById("answer-box");
         if (data.length) document.getElementById("results-title").style.display = "block";
-        data.forEach(r => {
+        data.forEach(r=>{
           box.insertAdjacentHTML('beforeend',
             answerBoxTemplate(r.safeId, r.brand, r.title, r.description, r.ingredients_y, r.rating)
           );
@@ -173,18 +164,15 @@
       });
     }
 
-    document.getElementById('search-button').addEventListener('click', fetchFlavors);
     document.getElementById('search-input').addEventListener('input', clearResults);
     document.getElementById('rating-filter').addEventListener('change', clearResults);
-    document.querySelectorAll('input[name="allergy"]').forEach(cb => 
+    document.querySelectorAll('input[name="allergy"]').forEach(cb=>
       cb.addEventListener('change', clearResults)
     );
-    document.getElementById('rating-filter-2').addEventListener('change', clearResults);
-    document.querySelectorAll('input[name="allergy-2"]').forEach(cb => 
-      cb.addEventListener('change', clearResults)
-    );
+    document.getElementById('search-button').addEventListener('click', fetchFlavors);
   </script>
 </body>
 </html>
+
 
 

@@ -11,23 +11,15 @@
 <body class="initial-mode">
 
   <header class="header-container">
-    <!-- big logo, only in initial mode -->
-    <img src="{{ url_for('static', filename='images/Godmother.png') }}"
-         alt="Dairy Godmother Logo"
-         class="logo-image">
-
-    <h1 class="main-title">Dairy Godmothers</h1>
-
+    <img src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Logo" class="logo-image">
+    <div class="title-container">
+      <h1 class="main-title">Dairy Godmothers</h1>
+      <img src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Logo small" class="logo-small">
+    </div>
     <div class="search-bar">
       <input id="search-input" placeholder="Search for an Ice Cream Flavor">
-      <button id="search-button">Find My Flavors</button>
-
-      <!-- small logo, only in results mode -->
-      <img src="{{ url_for('static', filename='images/Godmother.png') }}"
-           alt="Godmother Icon"
-           class="logo-small">
+      <button id="search-button">Find My Flavors</button>
     </div>
-
     <div class="filters-inline">
       <div class="filter-item">
         <label for="rating-filter">Minimum Rating:</label>
@@ -96,61 +88,66 @@
 
   <script>
     let firstSearch = true;
-    document.getElementById('allergy-toggle')
-      .addEventListener('click', ()=> document.querySelector('.dropdown-content').classList.toggle('show'));
-    window.addEventListener('click', e=>{
-      if (!e.target.matches('#allergy-toggle'))
+    document.getElementById('allergy-toggle').addEventListener('click',()=>{
+      document.querySelector('.dropdown-content').classList.toggle('show');
+    });
+    window.addEventListener('click',e=>{
+      if(!e.target.matches('#allergy-toggle'))
         document.querySelector('.dropdown-content').classList.remove('show');
     });
-
     function clearResults(){
       document.getElementById("answer-box").innerHTML="";
       document.getElementById("results-title").style.display="none";
     }
     function toggleDetails(id){
-      const e=document.getElementById(id);
-      e.style.display=e.style.display==='none'?'block':'none';
+      const el=document.getElementById(id);
+      el.style.display=(el.style.display==='none'?'block':'none');
     }
-    function answerBoxTemplate(safeId,brand,title,desc,ing,rate){
+    function answerBoxTemplate(safeId,brand,title,description,ingredients_y,rating){
       return `<div class="result">
         <div class="result-header" onclick="toggleDetails('details-${safeId}')">
           <h3 class="episode-title">${brand} ${title} <span class="toggle-icon">🍨</span></h3>
         </div>
         <div class="result-details" id="details-${safeId}" style="display:none;">
-          <p><strong>Description:</strong> ${desc}</p>
-          <p><strong>Ingredients:</strong> ${ing}</p>
-          <p><strong>Rating:</strong> ${rate}</p>
+          <p><strong>Description:</strong> ${description}</p>
+          <p><strong>Ingredients:</strong> ${ingredients_y}</p>
+          <p><strong>Rating:</strong> ${rating}</p>
           <button class="popup-button" onclick="openPopup()">More information about recommendation</button>
         </div>
       </div>`;
     }
-    function openPopup(){ document.getElementById('popup-modal').style.display='flex'; }
-    function closePopup(){ document.getElementById('popup-modal').style.display='none'; }
-
+    function openPopup(){document.getElementById('popup-modal').style.display='flex'}
+    function closePopup(){document.getElementById('popup-modal').style.display='none'}
     function fetchFlavors(){
-      const q=document.getElementById("search-input").value.trim(),
-            r=document.getElementById("rating-filter").value,
-            a=Array.from(document.querySelectorAll('input[name="allergy"]:checked'))
-                   .map(cb=>cb.value);
-      if(!q) return alert("Please enter a flavor.");
+      const query=document.getElementById("search-input").value.trim();
+      const rating=document.getElementById("rating-filter").value;
+      const allergies=Array.from(document.querySelectorAll('input[name="allergy"]:checked')).map(cb=>cb.value);
+      if(!query) return alert("Please enter a flavor.");
       clearResults();
       if(firstSearch){
         document.body.classList.replace('initial-mode','results-mode');
         firstSearch=false;
       }
-      fetch("/flavors?"+new URLSearchParams({title:q,min_rating:r,allergies:a.join(',')}))
-        .then(r=>r.json()).then(data=>{
-          const box=document.getElementById("answer-box");
-          if(data.length) document.getElementById("results-title").style.display="block";
-          data.forEach(o=>box.insertAdjacentHTML('beforeend',
-            answerBoxTemplate(o.safeId,o.brand,o.title,o.description,o.ingredients_y,o.rating)));
+      fetch("/flavors?"+new URLSearchParams({
+        title: query,
+        min_rating: rating,
+        allergies: allergies.join(',')
+      }))
+      .then(r=>r.json())
+      .then(data=>{
+        const box=document.getElementById("answer-box");
+        if(data.length) document.getElementById("results-title").style.display="block";
+        data.forEach(r=>{
+          box.insertAdjacentHTML('beforeend',
+            answerBoxTemplate(r.safeId,r.brand,r.title,r.description,r.ingredients_y,r.rating)
+          );
         });
+      });
     }
-
-    document.getElementById('search-input').addEventListener('input', clearResults);
-    document.getElementById('rating-filter').addEventListener('change', clearResults);
+    document.getElementById('search-input').addEventListener('input',clearResults);
+    document.getElementById('rating-filter').addEventListener('change',clearResults);
     document.querySelectorAll('input[name="allergy"]').forEach(cb=>cb.addEventListener('change',clearResults));
-    document.getElementById('search-button').addEventListener('click', fetchFlavors);
+    document.getElementById('search-button').addEventListener('click',fetchFlavors);
   </script>
 </body>
 </html>

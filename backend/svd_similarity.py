@@ -98,7 +98,7 @@ def query_composite_svd_similarity(query, models, weights):
 
 CUSTOM_STOPWORDS = ENGLISH_STOP_WORDS.union({
     "i", "it", "this", "we", "of", "with", "ice", "gelato", "a", "the", "and", "to", "s", "o"
-})
+}).union({chr(c) for c in range(ord('a'), ord('z')+1)})
 
 
 def get_latent_themes_for_all_fields(query, models, flavor_idx, top_n=3, terms_per_theme=5):
@@ -112,17 +112,19 @@ def get_latent_themes_for_all_fields(query, models, flavor_idx, top_n=3, terms_p
         top_dims = np.argsort(-np.abs(query_vec * flavor_vec))[:top_n]
         terms = vectorizer.get_feature_names_out()
 
-        field_themes = []
+        term_scores = {}
         for dim in top_dims:
             comp = svd_model.components_[dim]
-            top_terms = sorted(
-                ((t, w) for t, w in zip(terms, comp) if t not in CUSTOM_STOPWORDS),
-                key=lambda x: abs(x[1]), reverse=True
-            )[:terms_per_theme]
+            for term, weight in zip(terms, comp):
+                if term in CUSTOM_STOPWORDS:
+                    continue
+                if term not in term_scores:
+                    term_scores[term] = abs(weight)
+                else:
+                    term_scores[term] += abs(weight)
 
-            filtered_theme = ", ".join(t for t, _ in top_terms)
-            field_themes.append(filtered_theme)
-
-        themes_by_field[field] = field_themes
+        top_terms = sorted(term_scores.items(),
+                           key=lambda x: -x[1])[:terms_per_theme]
+        themes_by_field[field] = [t for t, _ in top_terms]
 
     return themes_by_field

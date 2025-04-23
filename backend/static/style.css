@@ -219,6 +219,7 @@ body.results-mode .search-bar {
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
+  font-size: inherit;
   margin-top: 10px;
 }
 .popup-button:hover {

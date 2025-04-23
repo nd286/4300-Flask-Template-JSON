@@ -240,8 +240,9 @@ body.results-mode .search-bar {
   padding: 20px;
   border-radius: 8px;
   position: relative;
-  max-width: 400px;
-  width: 80%;
+  max-width: 1200px; 
+  width: 90%;
+  font-size: 16px;   
 }
 .close {
   position: absolute;

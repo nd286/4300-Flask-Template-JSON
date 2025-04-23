@@ -140,7 +140,8 @@
         For each flavor we recommend, we show you the top matching themes across different aspects like the description, 
         ingredients, and reviews — so you can see why it’s a great match for your taste.
       </p>
-      <h4>Matched themes:</h4>
+      <hr>
+      <h4 style="margin-top: 1em;">Matched themes:</h4>
       <ul>
         ${Object.entries(content).map(([field, themes]) => {
           return `<li><strong>${field.charAt(0).toUpperCase() + field.slice(1)} themes:</strong> ${themes.join(", ")}</li>`;

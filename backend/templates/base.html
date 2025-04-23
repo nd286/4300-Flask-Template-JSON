@@ -82,7 +82,7 @@
   <div id="popup-modal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closePopup()">&times;</span>
-      <p>{{ popup_text }}</p>
+      <div id="popup-content"></div>
     </div>
   </div>
 
@@ -112,11 +112,22 @@
           <p><strong>Description:</strong> ${description}</p>
           <p><strong>Ingredients:</strong> ${ingredients_y}</p>
           <p><strong>Rating:</strong> ${rating}</p>
-          <button class="popup-button" onclick="openPopup()">More information about recommendation</button>
+          <button class="popup-button" onclick="openPopup('${safeId}')">More information about recommendation</button>
         </div>
       </div>`;
     }
-    function openPopup(){document.getElementById('popup-modal').style.display='flex'}
+    const explanationMap = {};
+    function openPopup(safeId) {
+      const content = explanationMap[safeId];
+      if (!content) return;
+      const container = document.getElementById("popup-content");
+      container.innerHTML = `<h3>Why this was recommended:</h3>` + 
+        Object.entries(content).map(([field, themes]) => {
+          return `<p><strong>${field.charAt(0).toUpperCase() + field.slice(1)} themes:</strong></p><ul>` +
+            themes.map(t => `<li>${t}</li>`).join('') + `</ul>`;
+        }).join('');
+      document.getElementById('popup-modal').style.display = 'flex';
+    }    
     function closePopup(){document.getElementById('popup-modal').style.display='none'}
     function fetchFlavors(){
       const query=document.getElementById("search-input").value.trim();
@@ -138,6 +149,7 @@
         const box=document.getElementById("answer-box");
         if(data.length) document.getElementById("results-title").style.display="block";
         data.forEach(r=>{
+          explanationMap[r.safeId] = r.explanation;
           box.insertAdjacentHTML('beforeend',
             answerBoxTemplate(r.safeId,r.brand,r.title,r.description,r.ingredients_y,r.rating)
           );

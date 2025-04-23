@@ -15,6 +15,7 @@ from sklearn.decomposition import TruncatedSVD
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk.corpus import wordnet as wn
 
+
 def wordnet_normalize(token):
     synsets = wn.synsets(token)
     for syn in synsets:
@@ -23,6 +24,7 @@ def wordnet_normalize(token):
             if "dairy_product" in hyper_names or "dairy" in hyper_names:
                 return "dairy"
     return token
+
 
 def wordnet_improved_tokenize(text: str):
     text = text.lower().strip()
@@ -47,20 +49,26 @@ def wordnet_improved_tokenize(text: str):
             result.append(token)
     return result
 
+
 def improved_tokenize(text: str):
     return wordnet_improved_tokenize(text)
 
+
 def build_field_svd(corpus, n_components=300):
-    vectorizer = TfidfVectorizer(tokenizer=improved_tokenize, token_pattern=None)
+    vectorizer = TfidfVectorizer(
+        tokenizer=improved_tokenize, token_pattern=None)
     tfidf_matrix = vectorizer.fit_transform(corpus)
-    n_comp = min(n_components, tfidf_matrix.shape[1] - 1) if tfidf_matrix.shape[1] > 1 else 1
+    n_comp = min(
+        n_components, tfidf_matrix.shape[1] - 1) if tfidf_matrix.shape[1] > 1 else 1
     svd_model = TruncatedSVD(n_components=n_comp, random_state=42)
     doc_vectors = svd_model.fit_transform(tfidf_matrix)
     return vectorizer, svd_model, doc_vectors
 
+
 def build_composite_svd_models(documents, n_components=100):
     desc_corpus = [doc.get("description", "") for doc in documents]
-    subhead_corpus = [doc.get("subhead", "").strip() if doc.get("subhead", "").strip() != "" else doc.get("title", "") for doc in documents]
+    subhead_corpus = [doc.get("subhead", "").strip() if doc.get(
+        "subhead", "").strip() != "" else doc.get("title", "") for doc in documents]
     ingr_corpus = [doc.get("ingredients_y", "") for doc in documents]
     reviews_corpus = [doc.get("text", "") for doc in documents]
     models = {}
@@ -69,6 +77,7 @@ def build_composite_svd_models(documents, n_components=100):
     models["ingredients"] = build_field_svd(ingr_corpus, n_components)
     models["reviews"] = build_field_svd(reviews_corpus, n_components)
     return models
+
 
 def query_composite_svd_similarity(query, models, weights):
     if not query.strip():
@@ -86,8 +95,24 @@ def query_composite_svd_similarity(query, models, weights):
     return composite_scores
 
 
+def get_latent_themes_for_all_fields(query, models, flavor_idx, top_n=3, terms_per_theme=5):
+    themes_by_field = {}
 
+    for field, (vectorizer, svd_model, doc_vectors) in models.items():
+        query_tfidf = vectorizer.transform([query])
+        query_vec = svd_model.transform(query_tfidf)[0]
+        flavor_vec = doc_vectors[flavor_idx]
 
+        top_dims = np.argsort(-np.abs(query_vec * flavor_vec))[:top_n]
+        terms = vectorizer.get_feature_names_out()
 
+        field_themes = []
+        for dim in top_dims:
+            comp = svd_model.components_[dim]
+            top_terms = sorted(zip(terms, comp), key=lambda x: abs(
+                x[1]), reverse=True)[:terms_per_theme]
+            field_themes.append(", ".join(t for t, _ in top_terms))
 
+        themes_by_field[field] = field_themes
 
+    return themes_by_field

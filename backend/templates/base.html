@@ -138,8 +138,12 @@
     function closePopup(){document.getElementById('popup-modal').style.display='none'}
     function fetchFlavors(){
       const query=document.getElementById("search-input").value.trim();
-      const rating=document.getElementById("rating-filter").value;
-      const allergies=Array.from(document.querySelectorAll('input[name="allergy"]:checked')).map(cb=>cb.value);
+      const inResultsMode = document.body.classList.contains('results-mode');
+      const rating = inResultsMode 
+        ? document.getElementById("rating-filter-2").value 
+        : document.getElementById("rating-filter").value;
+      const allergySelector = inResultsMode ? 'input[name="allergy-2"]:checked' : 'input[name="allergy"]:checked';
+      const allergies = Array.from(document.querySelectorAll(allergySelector)).map(cb => cb.value);
       if(!query) return alert("Please enter a flavor.");
       clearResults();
       if(firstSearch){

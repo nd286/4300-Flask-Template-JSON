@@ -98,7 +98,11 @@ def query_composite_svd_similarity(query, models, weights):
 
 CUSTOM_STOPWORDS = ENGLISH_STOP_WORDS.union({
     "i", "it", "this", "we", "of", "with", "ice", "gelato", "a", "the", "and", "to", "s", "o"
-}).union({chr(c) for c in range(ord('a'), ord('z')+1)})
+}).union(
+    {chr(c) for c in range(ord('a'), ord('z')+1)}
+).union(
+    {str(n) for n in range(0, 1000)}
+)
 
 
 def get_latent_themes_for_all_fields(query, models, flavor_idx, top_n=3, terms_per_theme=5):

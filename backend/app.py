@@ -79,7 +79,7 @@ def json_search(query, min_rating=0, allergy_list=[]):
         if len(filtered) >= 10:
             break
     out = []
-    for s, fl in filtered:
+    for s, fl, idx in filtered:
         nb = normalize_brand(fl["brand"])
         svd_themes = get_latent_themes_for_all_fields(
             query, composite_models, idx)

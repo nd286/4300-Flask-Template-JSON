@@ -135,15 +135,16 @@
             return `<p><strong>${field.charAt(0).toUpperCase() + field.slice(1)} themes:</strong> ${themes.join(", ")}</p>`;
           }).join('')}
         </div>
+        <hr style="margin-top: 1em; margin-bottom: 1em;">
         <hr>
       `;
 
       const explanation = `
         <p>
           When you search for a flavor, we don’t just match words directly. Instead, we use something called 
-          <em>latent dimensions</em> — hidden themes our system has learned from patterns across all descriptions, ingredients, 
-          and reviews. These themes might represent things like <strong>“rich & chocolatey,” “fruity & tangy,”</strong> or 
-          <strong>“creamy & smooth”</strong> — even if those exact words aren’t used.
+          latent dimensions — hidden themes our system has learned from patterns across all descriptions, ingredients, 
+          and reviews. These themes might represent things like “rich & chocolatey,” “fruity & tangy,” or 
+          “creamy & smooth” — even if those exact words aren’t used.
         </p>
         <p>
           For each flavor we recommend, we show you the top matching themes across different aspects like the description, 

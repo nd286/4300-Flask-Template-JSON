@@ -14,6 +14,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk.corpus import wordnet as wn
+from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
 
 def wordnet_normalize(token):
@@ -95,6 +96,11 @@ def query_composite_svd_similarity(query, models, weights):
     return composite_scores
 
 
+CUSTOM_STOPWORDS = ENGLISH_STOP_WORDS.union({
+    "i", "it", "this", "we", "of", "with", "ice", "gelato", "a", "the", "and", "to", "s", "o"
+})
+
+
 def get_latent_themes_for_all_fields(query, models, flavor_idx, top_n=3, terms_per_theme=5):
     themes_by_field = {}
 
@@ -109,9 +115,13 @@ def get_latent_themes_for_all_fields(query, models, flavor_idx, top_n=3, terms_p
         field_themes = []
         for dim in top_dims:
             comp = svd_model.components_[dim]
-            top_terms = sorted(zip(terms, comp), key=lambda x: abs(
-                x[1]), reverse=True)[:terms_per_theme]
-            field_themes.append(", ".join(t for t, _ in top_terms))
+            top_terms = sorted(
+                ((t, w) for t, w in zip(terms, comp) if t not in CUSTOM_STOPWORDS),
+                key=lambda x: abs(x[1]), reverse=True
+            )[:terms_per_theme]
+
+            filtered_theme = ", ".join(t for t, _ in top_terms)
+            field_themes.append(filtered_theme)
 
         themes_by_field[field] = field_themes
 

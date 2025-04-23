@@ -128,28 +128,30 @@
     function openPopup(safeId) {
       const content = explanationMap[safeId];
       if (!content) return;
-      const explanationIntro = `
-      <h3>How we understand your preferences:</h3>
-      <p>
-        When you search for a flavor, we don’t just match words directly. Instead, we use something called 
-        latent dimensions — hidden themes our system has learned from patterns across all descriptions, ingredients, 
-        and reviews. These themes might represent things like “rich & chocolatey,” “fruity & tangy,” or 
-        “creamy & smooth”— even if those exact words aren’t used.
-      </p>
-      <p>
-        For each flavor we recommend, we show you the top matching themes across different aspects like the description, 
-        ingredients, and reviews — so you can see why it’s a great match for your taste.
-      </p>
-      <hr>
-      <h4 style="margin-top: 1em;">Matched themes:</h4>
-      <ul>
-        ${Object.entries(content).map(([field, themes]) => {
-          return `<li><strong>${field.charAt(0).toUpperCase() + field.slice(1)} themes:</strong> ${themes.join(", ")}</li>`;
-        }).join('')}
-      </ul>
-    `;
+      const themesSection = `
+        <h3>Matched themes:</h3>
+        <div>
+          ${Object.entries(content).map(([field, themes]) => {
+            return `<p><strong>${field.charAt(0).toUpperCase() + field.slice(1)} themes:</strong> ${themes.join(", ")}</p>`;
+          }).join('')}
+        </div>
+        <hr>
+      `;
+
+      const explanation = `
+        <p>
+          When you search for a flavor, we don’t just match words directly. Instead, we use something called 
+          <em>latent dimensions</em> — hidden themes our system has learned from patterns across all descriptions, ingredients, 
+          and reviews. These themes might represent things like <strong>“rich & chocolatey,” “fruity & tangy,”</strong> or 
+          <strong>“creamy & smooth”</strong> — even if those exact words aren’t used.
+        </p>
+        <p>
+          For each flavor we recommend, we show you the top matching themes across different aspects like the description, 
+          ingredients, and reviews — so you can see why it’s a great match for your taste.
+        </p>
+      `;
       const container = document.getElementById("popup-content");
-      container.innerHTML = explanationIntro;
+      container.innerHTML = themesSection + `<h3>How we understand your preferences:</h3>` + explanation;
       document.getElementById('popup-modal').style.display = 'flex';
     }  
     function closePopup(){document.getElementById('popup-modal').style.display='none'}

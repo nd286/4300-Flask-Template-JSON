@@ -74,7 +74,7 @@
       </div>
     </aside>
     <main class="results-section">
-      <h2 id="results-title" style="display:none;">Ice cream recommendations</h2>
+      <h2 id="results-title" style="display:none;">Ice Cream Recommendations</h2>
       <div id="answer-box"></div>
     </main>
   </div>
@@ -103,6 +103,14 @@
       const el=document.getElementById(id);
       el.style.display=(el.style.display==='none'?'block':'none');
     }
+    function capitalizeIngredients(ingredients) {
+      return ingredients
+        .toLowerCase()
+        .split(',')
+        .map(ing => ing.trim())
+        .map(ing => ing.charAt(0).toUpperCase() + ing.slice(1))
+        .join(', ');
+    }
     function answerBoxTemplate(safeId,brand,title,description,ingredients_y,rating){
       return `<div class="result">
         <div class="result-header" onclick="toggleDetails('details-${safeId}')">
@@ -110,7 +118,7 @@
         </div>
         <div class="result-details" id="details-${safeId}" style="display:none;">
           <p><strong>Description:</strong> ${description}</p>
-          <p><strong>Ingredients:</strong> ${ingredients_y}</p>
+          <p><strong>Ingredients:</strong> ${capitalizeIngredients(ingredients_y)}</p>
           <p><strong>Rating:</strong> ${rating}</p>
           <button class="popup-button" onclick="openPopup('${safeId}')">More information about recommendation</button>
         </div>

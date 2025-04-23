@@ -23,6 +23,11 @@ body.results-mode {
   background-color: #fde8ec;
 }
 
+.result-details strong {
+  font-weight: 700; 
+  color: #333; 
+}
+
 .header-container {
   width: 100%;
   background-color: #f5cbc3;

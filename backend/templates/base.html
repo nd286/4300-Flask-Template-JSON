@@ -139,7 +139,7 @@
         <p style="margin-bottom:1em;">
           When you search for a flavor, we don’t just match words directly.
           Instead, we use latent dimensions — hidden themes our system has learned
-          from patterns across all descriptions, ingredients, and reviews.
+          from patterns across all descriptions, subhead, ingredients, and reviews.
         </p>
         <p style="margin-bottom:2em;">
           Below you see each theme plotted with how strongly it matched your query.
@@ -183,6 +183,11 @@
             },
             scales: {
               r: {
+                pointLabels: {
+                  font: {
+                    weight: 'bold'
+                  }
+                },
                 angleLines: { color: 'rgba(0,0,0,0.05)' },
                 grid:       { color: 'rgba(0,0,0,0.05)' },
                 ticks:      { backdropColor: 'rgba(255,255,255,0.9)' }

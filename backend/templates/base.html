@@ -87,8 +87,7 @@
     const brandUrls = {
       "Ben and Jerry's": "https://www.benjerry.com/",
       "Haagen Dazs": "https://www.icecream.com/us/en/brands/haagen-dazs",
-      "Talenti": "https://www.talentigelato.com/us/en/home.html",
-      "Breyers": "https://www.breyers.com/us/en/home.html"
+      "Talenti": "https://www.talentigelato.com/us/en/home.html"
     };
     let firstSearch = true;
     document.getElementById('allergy-toggle').addEventListener('click',()=>document.querySelector('.dropdown-content').classList.toggle('show'));
@@ -109,34 +108,28 @@
     }
     const explanationMap={};
     function openPopup(safeId){
-      const content = explanationMap[safeId];
-      if (!content) return;
+      const content=explanationMap[safeId];
+      if(!content) return;
+      let html = '<h3>Matched themes:</h3><div>';
+      Object.entries(content).forEach(([field,themes])=>{
+        html += `<p><strong>${field.charAt(0).toUpperCase()+field.slice(1)} themes:</strong> ${themes.map(t=>t.theme||t).join(', ')}</p>`;
+        html += `<canvas id="chart-${safeId}-${field}"></canvas>`;
+      });
+      html += '</div><hr style="margin-top:1em;margin-bottom:1em;">';
+      html += '<h3>How we understand your preferences:</h3>';
+      html += '<p>When you search for a flavor, we don’t just match words directly. Instead, we use something called latent dimensions — hidden themes our system has learned from patterns across all descriptions, ingredients, and reviews.</p>';
+      html += '<p>For each flavor we recommend, we show you the top matching themes across different aspects like the description, ingredients, and reviews — so you can see why it’s a great match for your taste.</p>';
       const container = document.getElementById("popup-content");
-      container.innerHTML = "";
-      Object.entries(content).forEach(([field, themes]) => {
-        const h = document.createElement('h3');
-        h.textContent = field.charAt(0).toUpperCase()+field.slice(1) + " theme match:";
-        container.appendChild(h);
-        const c = document.createElement('canvas');
-        c.id = `chart-${safeId}-${field}`;
-        container.appendChild(c);
-        const labels = themes.map(item=>item.theme);
-        const data = themes.map(item=>item.score);
-        new Chart(c.getContext('2d'), {
-          type: 'bar',
-          data: { labels, datasets: [{ label: "Match score", data }] },
-          options: { responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+      container.innerHTML = html;
+      Object.entries(content).forEach(([field,themes])=>{
+        const labels = themes.map(t=>t.theme||t);
+        const data    = themes.map(t=>t.score!==undefined?t.score:t.weight||0);
+        new Chart(document.getElementById(`chart-${safeId}-${field}`), {
+          type:'bar',
+          data:{labels:labels,datasets:[{label:`${field.charAt(0).toUpperCase()+field.slice(1)} match scores`,data:data}]},
+          options:{responsive:true,scales:{y:{beginAtZero:true}}}
         });
       });
-      const title = document.createElement('h3');
-      title.textContent = "How we understand your preferences:";
-      container.appendChild(title);
-      const p1 = document.createElement('p');
-      p1.textContent = "When you search for a flavor, we don’t just match words directly. Instead, we use something called latent dimensions — hidden themes our system has learned from patterns across all descriptions, ingredients, and reviews.";
-      container.appendChild(p1);
-      const p2 = document.createElement('p');
-      p2.textContent = "For each flavor we recommend, we show you the top matching themes across different aspects like the description, ingredients, and reviews — so you can see why it’s a great match for your taste.";
-      container.appendChild(p2);
       document.getElementById('popup-modal').style.display='flex';
     }
     function closePopup(){
@@ -148,11 +141,14 @@
       const rating=inResultsMode?document.getElementById("rating-filter-2").value:document.getElementById("rating-filter").value;
       const allergySelector=inResultsMode?'input[name="allergy-2"]:checked':'input[name="allergy"]:checked';
       const allergies=Array.from(document.querySelectorAll(allergySelector)).map(cb=>cb.value);
-      if(!query)return alert("Please enter a flavor.");
+      if(!query) return alert("Please enter a flavor.");
       clearResults();
       if(firstSearch){
         document.getElementById('rating-filter-2').value=document.getElementById('rating-filter').value;
-        document.querySelectorAll('input[name="allergy"]').forEach(cb=>{const m=document.querySelector(`input[name="allergy-2"][value="${cb.value}"]`);if(m)m.checked=cb.checked;});
+        document.querySelectorAll('input[name="allergy"]').forEach(cb=>{
+          const m=document.querySelector(`input[name="allergy-2"][value="${cb.value}"]`);
+          if(m) m.checked=cb.checked;
+        });
         document.body.classList.replace('initial-mode','results-mode');
         firstSearch=false;
       }
@@ -162,7 +158,10 @@
         const box=document.getElementById("answer-box");
         if(data.length){
           document.getElementById("results-title").style.display="block";
-          data.forEach(r=>{explanationMap[r.safeId]=r.explanation;box.insertAdjacentHTML('beforeend',answerBoxTemplate(r.safeId,r.brand,r.title,r.description,r.ingredients_y,r.rating));});
+          data.forEach(r=>{
+            explanationMap[r.safeId]=r.explanation;
+            box.insertAdjacentHTML('beforeend',answerBoxTemplate(r.safeId,r.brand,r.title,r.description,r.ingredients_y,r.rating));
+          });
         } else {
           box.innerHTML="<p>No results found.</p>";
         }

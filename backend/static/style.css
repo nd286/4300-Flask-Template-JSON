@@ -293,7 +293,7 @@ body.results-mode .search-bar {
 }
 
 .popup-button {
-    background-color: #f7a9a8; 
+    background-color: #f7a9a8;
     border: 1px solid white;
     color: black;
     padding: 6px 12px;
@@ -306,7 +306,7 @@ body.results-mode .search-bar {
 }
 
 .popup-button:hover {
-    background-color: #f47977; 
+    background-color: #f47977;
 }
 
 @keyframes sparkle {
@@ -350,4 +350,10 @@ body.results-mode .search-bar {
     right: 15px;
     font-size: 24px;
     cursor: pointer;
+}
+
+.modal-content canvas {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 20px;
 }

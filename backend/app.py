@@ -1,4 +1,4 @@
-import json 
+import json
 import os
 from flask import Flask, render_template, request
 from flask_cors import CORS
@@ -47,7 +47,6 @@ ALLERGY_KEYWORDS = {
     "eggs": ["egg", "egg yolk", "egg white", "albumin", "eggs", "egg yolks", "egg whites", "albumins"]
 }
 
-
 def normalize_brand(brand):
     b = brand.lower()
     if b == "bj":
@@ -56,11 +55,9 @@ def normalize_brand(brand):
         return "Haagen Dazs"
     return brand.title()
 
-
 def make_safe_id(brand, title):
     raw = f"{brand}-{title}".replace(" ", "-")
     return "".join(c for c in raw if c.isalnum() or c == "-").lower()
-
 
 def json_search(query, min_rating=0, allergy_list=[]):
     if not query.strip():
@@ -81,14 +78,8 @@ def json_search(query, min_rating=0, allergy_list=[]):
     out = []
     for s, fl, idx in filtered:
         nb = normalize_brand(fl["brand"])
-        raw_svd = get_latent_themes_for_all_fields(query, composite_models, idx)
-        svd_themes = {
-            field: [
-                {"theme": t, "score": float(score)}
-                for t, score in themes
-            ]
-            for field, themes in raw_svd.items()
-        }
+        svd_themes = get_latent_themes_for_all_fields(
+            query, composite_models, idx)
         out.append({
             "safeId": make_safe_id(nb, fl["title"]),
             "title": fl["title"].title(),
@@ -103,12 +94,10 @@ def json_search(query, min_rating=0, allergy_list=[]):
         })
     return json.dumps(out)
 
-
 @app.route("/")
 def home():
     popup_text = "this is a popup"
     return render_template("base.html", popup_text=popup_text)
-
 
 @app.route("/flavors")
 def flavors_search():
@@ -117,7 +106,6 @@ def flavors_search():
     al = [a.strip().lower()
           for a in request.args.get("allergies", "").split(",") if a]
     return json_search(q, mr, al)
-
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)

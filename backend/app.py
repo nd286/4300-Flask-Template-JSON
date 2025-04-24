@@ -1,4 +1,4 @@
-import json
+import json 
 import os
 from flask import Flask, render_template, request
 from flask_cors import CORS
@@ -33,7 +33,8 @@ for doc in docs:
 
 flavor_list = list(unique_flavors.values())
 composite_models = build_composite_svd_models(flavor_list, n_components=300)
-weights = {"description": 0.1, "subhead": 0.4, "ingredients": 0.3, "reviews": 0.2}
+weights = {"description": 0.1, "subhead": 0.4,
+           "ingredients": 0.3, "reviews": 0.2}
 
 app = Flask(__name__)
 CORS(app)
@@ -46,6 +47,7 @@ ALLERGY_KEYWORDS = {
     "eggs": ["egg", "egg yolk", "egg white", "albumin", "eggs", "egg yolks", "egg whites", "albumins"]
 }
 
+
 def normalize_brand(brand):
     b = brand.lower()
     if b == "bj":
@@ -54,9 +56,11 @@ def normalize_brand(brand):
         return "Haagen Dazs"
     return brand.title()
 
+
 def make_safe_id(brand, title):
     raw = f"{brand}-{title}".replace(" ", "-")
     return "".join(c for c in raw if c.isalnum() or c == "-").lower()
+
 
 def json_search(query, min_rating=0, allergy_list=[]):
     if not query.strip():
@@ -99,17 +103,21 @@ def json_search(query, min_rating=0, allergy_list=[]):
         })
     return json.dumps(out)
 
+
 @app.route("/")
 def home():
     popup_text = "this is a popup"
     return render_template("base.html", popup_text=popup_text)
 
+
 @app.route("/flavors")
 def flavors_search():
     q = request.args.get("title", "")
     mr = float(request.args.get("min_rating", 0))
-    al = [a.strip().lower() for a in request.args.get("allergies", "").split(",") if a]
+    al = [a.strip().lower()
+          for a in request.args.get("allergies", "").split(",") if a]
     return json_search(q, mr, al)
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)

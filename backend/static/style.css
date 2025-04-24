@@ -4,6 +4,21 @@
     padding: 0;
 }
 
+/* colors:
+    Cream	#f6bf60	Dark Brownish Gray	#3D3D3D
+    #4E4B46
+    Light Cream	#f7eee2	Charcoal Gray	#333333
+    Mandy's Pink	#f5cbc3	Deep Burgundy	#6A2C2C
+    Cascade	#84a59d	Muted Navy	#2A3D66
+    Froly	#f28482	Olive Green	#4E5D56
+    Caramel: #C49A6C
+    Muted Lavender: #D1A6D6
+    Light Caramel: #E4C3A4
+    Soft Pastel Blue: #A8B9D4
+    Soft Blush Pink: #F4D0D9
+    background-color: #f5cbc3;
+*/
+
 body {
     font-family: 'Open Sans', sans-serif;
     background-color: #f5cbc3;
@@ -149,7 +164,7 @@ body.results-mode .search-bar {
 .search-bar button {
     padding: 12px 16px;
     border: none;
-    background-color: #3D3D4D;
+    background-color: #3D3D3D;
     color: white;
     border-radius: 0 16px 16px 0;
     cursor: pointer;
@@ -278,7 +293,7 @@ body.results-mode .search-bar {
 }
 
 .popup-button {
-    background-color: #f7a9a8;
+    background-color: #f7a9a8; 
     border: 1px solid white;
     color: black;
     padding: 6px 12px;
@@ -291,7 +306,7 @@ body.results-mode .search-bar {
 }
 
 .popup-button:hover {
-    background-color: #f47977;
+    background-color: #f47977; 
 }
 
 @keyframes sparkle {

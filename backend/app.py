@@ -53,6 +53,8 @@ def normalize_brand(brand):
         return "Ben and Jerry's"
     if b == "hd":
         return "Haagen Dazs"
+    if b == "breyers":
+        return "Breyers"
     return brand.title()
 
 def make_safe_id(brand, title):

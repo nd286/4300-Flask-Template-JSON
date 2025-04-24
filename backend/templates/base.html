@@ -109,7 +109,7 @@
     const explanationMap={};
     function openPopup(safeId){
       const content=explanationMap[safeId];
-      if(!content) return;
+      if(!content)return;
       let html = '<h3>Matched themes:</h3><div>';
       Object.entries(content).forEach(([field,themes])=>{
         html += `<p><strong>${field.charAt(0).toUpperCase()+field.slice(1)} themes:</strong> ${themes.map(t=>t.theme||t).join(', ')}</p>`;
@@ -125,9 +125,9 @@
         const labels = themes.map(t=>t.theme||t);
         const data    = themes.map(t=>t.score!==undefined?t.score:t.weight||0);
         new Chart(document.getElementById(`chart-${safeId}-${field}`), {
-          type:'bar',
-          data:{labels:labels,datasets:[{label:`${field.charAt(0).toUpperCase()+field.slice(1)} match scores`,data:data}]},
-          options:{responsive:true,scales:{y:{beginAtZero:true}}}
+          type:'radar',
+          data:{labels:labels,datasets:[{label:`${field.charAt(0).toUpperCase()+field.slice(1)} match`,data:data}]},
+          options:{responsive:true,scales:{r:{beginAtZero:true}}}
         });
       });
       document.getElementById('popup-modal').style.display='flex';
@@ -141,14 +141,11 @@
       const rating=inResultsMode?document.getElementById("rating-filter-2").value:document.getElementById("rating-filter").value;
       const allergySelector=inResultsMode?'input[name="allergy-2"]:checked':'input[name="allergy"]:checked';
       const allergies=Array.from(document.querySelectorAll(allergySelector)).map(cb=>cb.value);
-      if(!query) return alert("Please enter a flavor.");
+      if(!query)return alert("Please enter a flavor.");
       clearResults();
       if(firstSearch){
         document.getElementById('rating-filter-2').value=document.getElementById('rating-filter').value;
-        document.querySelectorAll('input[name="allergy"]').forEach(cb=>{
-          const m=document.querySelector(`input[name="allergy-2"][value="${cb.value}"]`);
-          if(m) m.checked=cb.checked;
-        });
+        document.querySelectorAll('input[name="allergy"]').forEach(cb=>{const m=document.querySelector(`input[name="allergy-2"][value="${cb.value}"]`);if(m)m.checked=cb.checked;});
         document.body.classList.replace('initial-mode','results-mode');
         firstSearch=false;
       }
@@ -158,10 +155,7 @@
         const box=document.getElementById("answer-box");
         if(data.length){
           document.getElementById("results-title").style.display="block";
-          data.forEach(r=>{
-            explanationMap[r.safeId]=r.explanation;
-            box.insertAdjacentHTML('beforeend',answerBoxTemplate(r.safeId,r.brand,r.title,r.description,r.ingredients_y,r.rating));
-          });
+          data.forEach(r=>{explanationMap[r.safeId]=r.explanation;box.insertAdjacentHTML('beforeend',answerBoxTemplate(r.safeId,r.brand,r.title,r.description,r.ingredients_y,r.rating));});
         } else {
           box.innerHTML="<p>No results found.</p>";
         }

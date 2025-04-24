@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Kanit&family=Montserrat&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="initial-mode">
   <header class="header-container">
@@ -86,8 +87,8 @@
     const brandUrls = {
       "Ben and Jerry's": "https://www.benjerry.com/",
       "Haagen Dazs": "https://www.icecream.com/us/en/brands/haagen-dazs",
-      "Talenti": "https://www.talentigelato.com/us/en/home.html?gclid=75f717c22d301269ec6c7fc8503e82b7&gclsrc=3p.ds&msclkid=75f717c22d301269ec6c7fc8503e82b7&utm_source=bing&utm_medium=cpc&utm_campaign=EN_ICEUND_NA_General%20Brand_Inform_Keyword_CPC_BrndProd_EM_9454&utm_term=talenti&utm_content=Core-General",
-      "Breyers": "https://www.breyers.com/us/en/home.html?gclid=89039f6ebc2812120204f764c172126e&gclsrc=3p.ds&msclkid=89039f6ebc2812120204f764c172126e&utm_source=bing&utm_medium=cpc&utm_campaign=EN_ICEUND_Always-On-Ic-(Breyers)-CN005276_Inf_Txt_CPC_BrndProd_EM_General_BADS_BRY0000251&utm_term=breyers%20ice%20cream&utm_content=Brand_NShop_Brand_General_Em"
+      "Talenti": "https://www.talentigelato.com/us/en/home.html",
+      "Breyers": "https://www.breyers.com/us/en/home.html"
     };
     let firstSearch = true;
     document.getElementById('allergy-toggle').addEventListener('click',()=>document.querySelector('.dropdown-content').classList.toggle('show'));
@@ -108,16 +109,42 @@
     }
     const explanationMap={};
     function openPopup(safeId){
-      const content=explanationMap[safeId];
-      if(!content)return;
-      const themesSection=`<h3>Matched themes:</h3><div>${Object.entries(content).map(([field,themes])=>`<p><strong>${field.charAt(0).toUpperCase()+field.slice(1)} themes:</strong> ${themes.join(", ")}</p>`).join('')}</div><hr style="margin-top:1em;margin-bottom:1em;">`;
-      const explanation=`<p>When you search for a flavor, we don’t just match words directly. Instead, we use something called latent dimensions — hidden themes our system has learned from patterns across all descriptions, ingredients, and reviews.</p><p>For each flavor we recommend, we show you the top matching themes across different aspects like the description, ingredients, and reviews — so you can see why it’s a great match for your taste.</p>`;
-      const container=document.getElementById("popup-content");
-      container.innerHTML=themesSection+`<h3>How we understand your preferences:</h3>`+explanation;
-      document.getElementById('popup-modal').style.display='flex';
+      const content = explanationMap[safeId];
+      if (!content) return;
+      const container = document.getElementById("popup-content");
+      container.innerHTML = "";
+      Object.entries(content).forEach(([field, themes]) => {
+        const title = document.createElement('h3');
+        title.textContent = field.charAt(0).toUpperCase() + field.slice(1) + " theme match:";
+        container.appendChild(title);
+        const canvas = document.createElement('canvas');
+        canvas.id = `chart-${safeId}-${field}`;
+        container.appendChild(canvas);
+        const labels = themes.map(item => item.theme);
+        const data = themes.map(item => item.score);
+        new Chart(canvas.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: "Match score",
+              data: data
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              title: { display: false }
+            },
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+      });
+      document.getElementById('popup-modal').style.display = 'flex';
     }
     function closePopup(){
-      document.getElementById('popup-modal').style.display='none';
+      document.getElementById('popup-modal').style.display = 'none';
     }
     function fetchFlavors(){
       const query=document.getElementById("search-input").value.trim();
@@ -134,16 +161,16 @@
         firstSearch=false;
       }
       fetch("/flavors?"+new URLSearchParams({title:query,min_rating:rating,allergies:allergies.join(',')}))
-      .then(r=>r.json())
-      .then(data=>{
-        const box=document.getElementById("answer-box");
-        if(data.length){
-          document.getElementById("results-title").style.display="block";
-          data.forEach(r=>{explanationMap[r.safeId]=r.explanation;box.insertAdjacentHTML('beforeend',answerBoxTemplate(r.safeId,r.brand,r.title,r.description,r.ingredients_y,r.rating));});
-        } else {
-          box.innerHTML="<p>No results found.</p>";
-        }
-      });
+        .then(r=>r.json())
+        .then(data=>{
+          const box=document.getElementById("answer-box");
+          if(data.length){
+            document.getElementById("results-title").style.display="block";
+            data.forEach(r=>{explanationMap[r.safeId]=r.explanation;box.insertAdjacentHTML('beforeend',answerBoxTemplate(r.safeId,r.brand,r.title,r.description,r.ingredients_y,r.rating));});
+          } else {
+            box.innerHTML="<p>No results found.</p>";
+          }
+        });
     }
     document.getElementById('search-input').addEventListener('input',clearResults);
     document.getElementById('rating-filter').addEventListener('change',clearResults);

@@ -5,12 +5,12 @@
 }
 
 /* colors:
-    Cream    #f6bf60    Dark Brownish Gray    #3D3D3D
+    Cream	#f6bf60	Dark Brownish Gray	#3D3D3D
     #4E4B46
-    Light Cream    #f7eee2    Charcoal Gray    #333333
-    Mandy's Pink    #f5cbc3    Deep Burgundy    #6A2C2C
-    Cascade    #84a59d    Muted Navy    #2A3D66
-    Froly    #f28482    Olive Green    #4E5D56
+    Light Cream	#f7eee2	Charcoal Gray	#333333
+    Mandy's Pink	#f5cbc3	Deep Burgundy	#6A2C2C
+    Cascade	#84a59d	Muted Navy	#2A3D66
+    Froly	#f28482	Olive Green	#4E5D56
     Caramel: #C49A6C
     Muted Lavender: #D1A6D6
     Light Caramel: #E4C3A4
@@ -293,7 +293,7 @@ body.results-mode .search-bar {
 }
 
 .popup-button {
-    background-color: #f7a9a8;
+    background-color: #f7a9a8; 
     border: 1px solid white;
     color: black;
     padding: 6px 12px;
@@ -306,7 +306,7 @@ body.results-mode .search-bar {
 }
 
 .popup-button:hover {
-    background-color: #f47977;
+    background-color: #f47977; 
 }
 
 @keyframes sparkle {
@@ -335,8 +335,6 @@ body.results-mode .search-bar {
     max-width: 900px;
     width: 90%;
     font-size: 16px;
-    max-height: 80vh;
-    overflow-y: auto;
 }
 
 .modal-content h3 {
@@ -352,11 +350,4 @@ body.results-mode .search-bar {
     right: 15px;
     font-size: 24px;
     cursor: pointer;
-}
-
-/* Ensure radar charts fit inside the popup */
-.modal-content canvas {
-    max-width: 100%;
-    height: auto;
-    margin-bottom: 20px;
 }

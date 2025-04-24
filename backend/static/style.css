@@ -357,4 +357,6 @@ body.results-mode .search-bar {
     max-width: 400px !important;
     max-height: 400px !important;
     margin: 1em 0;
+    align-items: center;
+    text-align: center;
   }

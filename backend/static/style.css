@@ -297,7 +297,8 @@ body.results-mode .search-bar {
     border: 1px solid white;
     color: black;
     padding: 6px 12px;
-    border-radius: 4px;
+    border-radius: 6px;
+    margin-right: 4px;
     cursor: pointer;
     font-size: 14px;
     font-family: 'Open Sans', sans-serif;

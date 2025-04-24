@@ -33,20 +33,18 @@ for doc in docs:
 
 flavor_list = list(unique_flavors.values())
 composite_models = build_composite_svd_models(flavor_list, n_components=300)
-weights = {"description": 0.1, "subhead": 0.4,
-           "ingredients": 0.3, "reviews": 0.2}
+weights = {"description": 0.1, "subhead": 0.4, "ingredients": 0.3, "reviews": 0.2}
 
 app = Flask(__name__)
 CORS(app)
 
 ALLERGY_KEYWORDS = {
     "dairy": ["milk", "cream", "cheese", "butter", "whey", "casein", "yogurt", "skim milk"],
-    "nuts": ["peanut", "almond", "cashew", "walnut", "hazelnut", "macadamia", "pecan", "pistachio", "nut", "peanus", "almonds", "cashews", "walnuts", "hazelnuts", "macadamias", "pecans", "pistachios", "nuts"],
+    "nuts": ["peanut", "almond", "cashew", "walnut", "hazelnut", "macadamia", "pecan", "pistachio", "nut"],
     "gluten": ["wheat", "barley", "rye", "spelt", "farro", "malt"],
     "soy": ["soy", "soya", "soybean", "edamame", "tofu"],
-    "eggs": ["egg", "egg yolk", "egg white", "albumin", "eggs", "egg yolks", "egg whites", "albumins"]
+    "eggs": ["egg", "egg yolk", "egg white", "albumin"]
 }
-
 
 def normalize_brand(brand):
     b = brand.lower()
@@ -56,11 +54,9 @@ def normalize_brand(brand):
         return "Haagen Dazs"
     return brand.title()
 
-
 def make_safe_id(brand, title):
     raw = f"{brand}-{title}".replace(" ", "-")
     return "".join(c for c in raw if c.isalnum() or c == "-").lower()
-
 
 def json_search(query, min_rating=0, allergy_list=[]):
     if not query.strip():
@@ -81,8 +77,7 @@ def json_search(query, min_rating=0, allergy_list=[]):
     out = []
     for s, fl, idx in filtered:
         nb = normalize_brand(fl["brand"])
-        svd_themes = get_latent_themes_for_all_fields(
-            query, composite_models, idx)
+        svd_themes = get_latent_themes_for_all_fields(query, composite_models, idx)
         out.append({
             "safeId": make_safe_id(nb, fl["title"]),
             "title": fl["title"].title(),
@@ -97,21 +92,17 @@ def json_search(query, min_rating=0, allergy_list=[]):
         })
     return json.dumps(out)
 
-
 @app.route("/")
 def home():
     popup_text = "this is a popup"
     return render_template("base.html", popup_text=popup_text)
 
-
 @app.route("/flavors")
 def flavors_search():
     q = request.args.get("title", "")
     mr = float(request.args.get("min_rating", 0))
-    al = [a.strip().lower()
-          for a in request.args.get("allergies", "").split(",") if a]
+    al = [a.strip().lower() for a in request.args.get("allergies", "").split(",") if a]
     return json_search(q, mr, al)
-
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)

@@ -1,4 +1,4 @@
-import json
+import json  
 import os
 from flask import Flask, render_template, request
 from flask_cors import CORS
@@ -77,9 +77,9 @@ def json_search(query, min_rating=0, allergy_list=[]):
     out = []
     for s, fl, idx in filtered:
         nb = normalize_brand(fl["brand"])
-        raw_themes = get_latent_themes_for_all_fields(query, composite_models, idx)
+        svd_themes = get_latent_themes_for_all_fields(query, composite_models, idx)
         explanation = {}
-        for field, theme_list in raw_themes.items():
+        for field, theme_list in svd_themes.items():
             words, scores_vals = zip(*theme_list)
             explanation[field] = {"words": list(words), "scores": list(scores_vals)}
         out.append({

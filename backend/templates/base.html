@@ -91,8 +91,13 @@
       "Breyers": "https://www.breyers.com/us/en/home.html"
     };
     let firstSearch = true;
-    document.getElementById('allergy-toggle').addEventListener('click', () => document.querySelector('.dropdown-content').classList.toggle('show'));
-    window.addEventListener('click', e => { if (!e.target.matches('#allergy-toggle')) document.querySelector('.dropdown-content').classList.remove('show') });
+    document.getElementById('allergy-toggle').addEventListener('click', () =>
+      document.querySelector('.dropdown-content').classList.toggle('show')
+    );
+    window.addEventListener('click', e => {
+      if (!e.target.matches('#allergy-toggle'))
+        document.querySelector('.dropdown-content').classList.remove('show');
+    });
     function clearResults() {
       document.getElementById("answer-box").innerHTML = "";
       document.getElementById("results-title").style.display = "none";
@@ -102,7 +107,12 @@
       el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
     function capitalizeIngredients(ingredients) {
-      return ingredients.toLowerCase().split(',').map(ing => ing.trim()).map(ing => ing.charAt(0).toUpperCase() + ing.slice(1)).join(', ');
+      return ingredients
+        .toLowerCase()
+        .split(',')
+        .map(ing => ing.trim())
+        .map(ing => ing.charAt(0).toUpperCase() + ing.slice(1))
+        .join(', ');
     }
     function answerBoxTemplate(safeId, brand, title, description, ingredients_y, rating) {
       return `<div class="result"><div class="result-header" onclick="toggleDetails('details-${safeId}')"><h3 class="episode-title">${brand} ${title} <span class="toggle-icon">🍨</span></h3></div><div class="result-details" id="details-${safeId}" style="display:none;"><p><strong>Description:</strong> ${description}</p><p><strong>Ingredients:</strong> ${capitalizeIngredients(ingredients_y)}</p><p><strong>Rating:</strong> ${rating}</p><button class="popup-button" onclick="openPopup('${safeId}')">More information about recommendation</button><a href="${brandUrls[brand]}" target="_blank" class="popup-button" style="text-decoration:none;">${brand} website</a></div></div>`;

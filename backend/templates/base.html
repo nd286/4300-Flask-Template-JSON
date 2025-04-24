@@ -95,21 +95,24 @@
     };
 
     let firstSearch = true;
-    document.getElementById('allergy-toggle').addEventListener('click',()=>{
+    document.getElementById('allergy-toggle').addEventListener('click', ()=>{
       document.querySelector('.dropdown-content').classList.toggle('show');
     });
-    window.addEventListener('click',e=>{
-      if(!e.target.matches('#allergy-toggle'))
+    window.addEventListener('click', e => {
+      if (!e.target.matches('#allergy-toggle'))
         document.querySelector('.dropdown-content').classList.remove('show');
     });
+
     function clearResults(){
-      document.getElementById("answer-box").innerHTML="";
-      document.getElementById("results-title").style.display="none";
+      document.getElementById("answer-box").innerHTML = "";
+      document.getElementById("results-title").style.display = "none";
     }
+
     function toggleDetails(id){
-      const el=document.getElementById(id);
-      el.style.display=(el.style.display==='none'?'block':'none');
+      const el = document.getElementById(id);
+      el.style.display = (el.style.display === 'none' ? 'block' : 'none');
     }
+
     function capitalizeIngredients(ingredients) {
       return ingredients
         .toLowerCase()
@@ -129,7 +132,7 @@
           <p><strong>Ingredients:</strong> ${capitalizeIngredients(ingredients_y)}</p>
           <p><strong>Rating:</strong> ${rating}</p>
           <button class="popup-button" onclick="openPopup('${safeId}')">More information about recommendation</button>
-          <button class="brand-button" onclick="window.open(brandUrls[brand], '_blank')">${brand}</button>
+          <a href="${brandUrls[brand]}" target="_blank" class="popup-button">${brand} website</a>
         </div>
       </div>`;
     }
@@ -151,8 +154,7 @@
         `<p>
           When you search for a flavor, we don’t just match words directly. Instead, we use something called
           latent dimensions — hidden themes our system has learned from patterns across all descriptions, ingredients,
-          and reviews. These themes might represent things like “rich & chocolatey,” “fruity & tangy,” or
-          “creamy & smooth” — even if those exact words aren’t used.
+          and reviews.
         </p>
         <p>
           For each flavor we recommend, we show you the top matching themes across different aspects like the description,
@@ -163,49 +165,56 @@
       container.innerHTML = themesSection + `<h3>How we understand your preferences:</h3>` + explanation;
       document.getElementById('popup-modal').style.display = 'flex';
     }
+
     function closePopup(){
-      document.getElementById('popup-modal').style.display='none'
+      document.getElementById('popup-modal').style.display = 'none';
     }
+
     function fetchFlavors(){
-      const query=document.getElementById("search-input").value.trim();
+      const query = document.getElementById("search-input").value.trim();
       const inResultsMode = document.body.classList.contains('results-mode');
       const rating = inResultsMode
         ? document.getElementById("rating-filter-2").value
         : document.getElementById("rating-filter").value;
-      const allergySelector = inResultsMode ? 'input[name="allergy-2"]:checked' : 'input[name="allergy"]:checked';
+      const allergySelector = inResultsMode
+        ? 'input[name="allergy-2"]:checked'
+        : 'input[name="allergy"]:checked';
       const allergies = Array.from(document.querySelectorAll(allergySelector)).map(cb => cb.value);
-      if(!query) return alert("Please enter a flavor.");
+      if (!query) return alert("Please enter a flavor.");
       clearResults();
-      if(firstSearch){
+
+      if (firstSearch) {
         document.getElementById('rating-filter-2').value = document.getElementById('rating-filter').value;
         document.querySelectorAll('input[name="allergy"]').forEach(cb => {
           const match = document.querySelector(`input[name="allergy-2"][value="${cb.value}"]`);
-          if(match) match.checked = cb.checked;
+          if (match) match.checked = cb.checked;
         });
         document.body.classList.replace('initial-mode','results-mode');
-        firstSearch=false;
+        firstSearch = false;
       }
-      fetch("/flavors?"+new URLSearchParams({
+
+      fetch("/flavors?" + new URLSearchParams({
         title: query,
         min_rating: rating,
         allergies: allergies.join(',')
       }))
-      .then(r=>r.json())
-      .then(data=>{
-        const box=document.getElementById("answer-box");
-        if(data.length) document.getElementById("results-title").style.display="block";
-        data.forEach(r=>{
+      .then(r => r.json())
+      .then(data => {
+        const box = document.getElementById("answer-box");
+        if (data.length) document.getElementById("results-title").style.display = "block";
+        data.forEach(r => {
           explanationMap[r.safeId] = r.explanation;
           box.insertAdjacentHTML('beforeend',
-            answerBoxTemplate(r.safeId,r.brand,r.title,r.description,r.ingredients_y,r.rating)
+            answerBoxTemplate(r.safeId, r.brand, r.title, r.description, r.ingredients_y, r.rating)
           );
         });
       });
     }
-    document.getElementById('search-input').addEventListener('input',clearResults);
-    document.getElementById('rating-filter').addEventListener('change',clearResults);
-    document.querySelectorAll('input[name="allergy"]').forEach(cb=>cb.addEventListener('change',clearResults));
-    document.getElementById('search-button').addEventListener('click',fetchFlavors);
+
+    document.getElementById('search-input').addEventListener('input', clearResults);
+    document.getElementById('rating-filter').addEventListener('change', clearResults);
+    document.querySelectorAll('input[name="allergy"]').forEach(cb => cb.addEventListener('change', clearResults));
+    document.getElementById('search-button').addEventListener('click', fetchFlavors);
   </script>
 </body>
 </html>

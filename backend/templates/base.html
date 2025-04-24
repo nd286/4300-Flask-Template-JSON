@@ -155,14 +155,9 @@
       document.getElementById("popup-content").innerHTML = html;
 
       for (const [field, arr] of Object.entries(content)) {
-        const labels = [], data = [];
-        arr.forEach(item => {
-          if (Array.isArray(item)) {
-            labels.push(item[0]); data.push(item[1]);
-          } else {
-            labels.push(item.theme); data.push(item.score);
-          }
-        });
+        const labels = arr.map(item => item.theme);
+        const data = arr.map(item => item.score);
+
         new Chart(
           document.getElementById(`chart-${id}-${field}`),
           {

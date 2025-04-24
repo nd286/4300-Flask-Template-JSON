@@ -136,21 +136,24 @@
       const content = explanationMap[id];
       if (!content) return;
       let html = `
-        <p>
+        <p style="margin-bottom:1em;">
           When you search for a flavor, we don’t just match words directly.
           Instead, we use latent dimensions — hidden themes our system has learned
           from patterns across all descriptions, ingredients, and reviews.
         </p>
-        <p>
+        <p style="margin-bottom:2em;">
           Below you see each theme plotted with how strongly it matched your query.
         </p>
-        <hr />
+        <hr style="margin-bottom:2em;" />
       `;
       Object.entries(content).forEach(([field, data]) => {
         const title = field.charAt(0).toUpperCase() + field.slice(1);
         html += `
-          <h4>${title}:</h4>
-          <canvas id="chart-${id}-${field}" width="400" height="400"></canvas>
+          <h4 style="margin-top:1.5em;">${title}</h4>
+          <p style="font-style:italic; margin-bottom:0.5em;">
+            Themes: ${data.themes.join(', ')}
+          </p>
+          <canvas id="chart-${id}-${field}" width="400" height="400" style="max-width:100%;"></canvas>
         `;
       });
       document.getElementById("popup-content").innerHTML = html;
@@ -167,17 +170,22 @@
               fill: true,
               backgroundColor: 'rgba(209,73,91,0.3)',
               borderColor: 'rgb(209,73,91)',
+              borderWidth: 2,
               pointBackgroundColor: 'rgb(209,73,91)',
               pointBorderColor: '#fff',
-              pointRadius: 4
+              pointRadius: 5,
+              tension: 0.4
             }]
           },
           options: {
+            elements: {
+              line: { tension: 0.4 }
+            },
             scales: {
               r: {
-                angleLines: { color: 'rgba(0,0,0,0.1)' },
-                grid: { color: 'rgba(0,0,0,0.1)' },
-                ticks: { backdropColor: 'rgba(255,255,255,0.8)' }
+                angleLines: { color: 'rgba(0,0,0,0.05)' },
+                grid:       { color: 'rgba(0,0,0,0.05)' },
+                ticks:      { backdropColor: 'rgba(255,255,255,0.9)' }
               }
             },
             plugins: { legend: { display: false } }

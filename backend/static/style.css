@@ -35,6 +35,8 @@ button {
     background-color: white;
     border: none;
     height: 32px;
+    padding: 4px 8px;
+    cursor: pointer;
 }
 
 body.initial-mode .content {
@@ -289,6 +291,7 @@ body.results-mode .search-bar {
     font-size: 14px;
     font-family: 'Open Sans', sans-serif;
     margin-top: 10px;
+    text-decoration: none;
 }
 
 .popup-button:hover {
@@ -315,8 +318,8 @@ body.results-mode .search-bar {
 }
 
 .modal-content {
-    background: #e6e6fa;  /* changed from white to light purple */
-    padding: 20px;
+    background: #e6e6fa;
+    padding: 20px 20px 40px;
     border-radius: 8px;
     position: relative;
     max-width: 900px;

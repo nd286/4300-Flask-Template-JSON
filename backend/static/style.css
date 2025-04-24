@@ -293,7 +293,7 @@ body.results-mode .search-bar {
 }
 
 .popup-button {
-    background-color: #d3fedb;
+    background-color: #B19CD9; /* sparkle purple */
     border: 1px solid white;
     color: black;
     padding: 6px 12px;
@@ -305,7 +305,7 @@ body.results-mode .search-bar {
 }
 
 .popup-button:hover {
-    background-color: #b9fec4;
+    background-color: #9A86C1; /* a slightly deeper purple on hover */
 }
 
 .modal {

@@ -15,7 +15,6 @@ with open(json_file_path, 'r') as file:
     flavors_df = pd.DataFrame(data['flavors'])
 
 docs = flavors_df.to_dict(orient='records')
-
 unique_flavors = {}
 for doc in docs:
     title = doc.get("title", "").strip()
@@ -81,12 +80,19 @@ def json_search(query, min_rating=0, allergy_list=[]):
         svd_themes = get_latent_themes_for_all_fields(query, composite_models, idx)
         theme_explanation = {}
         for field, items in svd_themes.items():
-            if items and isinstance(items[0], (list, tuple)) and len(items[0]) >= 2:
-                themes = [itm[0] for itm in items]
-                scores = [float(itm[1]) for itm in items]
+            themes, scores = [], []
+            if items and isinstance(items[0], dict) and 'score' in items[0]:
+                for d in items:
+                    themes.append(d.get('theme', ''))
+                    scores.append(float(d.get('score', 0)))
+            elif items and isinstance(items[0], (list, tuple)) and len(items[0]) >= 2:
+                for itm in items:
+                    themes.append(itm[0])
+                    scores.append(float(itm[1]))
             else:
-                themes = items
-                scores = [0.0] * len(items)
+                for itm in items:
+                    themes.append(itm)
+                    scores.append(0.0)
             theme_explanation[field] = {"themes": themes, "scores": scores}
         out.append({
             "safeId": make_safe_id(nb, fl["title"]),

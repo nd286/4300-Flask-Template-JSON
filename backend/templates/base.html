@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>{{ title }}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Kanit&family=Montserrat&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,10 +11,10 @@
 </head>
 <body class="initial-mode">
   <header class="header-container">
-    <img src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Logo" class="logo-image">
+    <img src="{{ url_for('static',filename='images/Godmother.png') }}" alt="Logo" class="logo-image">
     <div class="title-container">
       <h1 class="main-title">Dairy Godmothers</h1>
-      <img src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Logo small" class="logo-small">
+      <img src="{{ url_for('static',filename='images/Godmother.png') }}" alt="Logo small" class="logo-small">
     </div>
     <div class="search-bar">
       <input id="search-input" placeholder="Search for an Ice Cream Flavor">
@@ -85,86 +85,70 @@
   </div>
   <script>
     const brandUrls = {
-      "Ben and Jerry's": "https://www.benjerry.com/",
-      "Haagen Dazs": "https://www.icecream.com/us/en/brands/haagen-dazs",
-      "Talenti": "https://www.talentigelato.com/us/en/home.html",
-      "Breyers": "https://www.breyers.com/us/en/home.html?gclid=6af865b4f1dd192ae9240dbe5d579131&gclsrc=3p.ds&msclkid=6af865b4f1dd192ae9240dbe5d579131&utm_source=bing&utm_medium=cpc&utm_campaign=EN_ICEUND_Always-On-Ic-(Breyers)-CN005276_Inf_Txt_CPC_BrndProd_EM_General_BADS_BRY0000251&utm_term=breyers%20ice%20cream&utm_content=Brand_NShop_Brand_General_Em"
+      "Ben and Jerry's":"https://www.benjerry.com/",
+      "Haagen Dazs":"https://www.icecream.com/us/en/brands/haagen-dazs",
+      "Talenti":"https://www.talentigelato.com/us/en/home.html",
+      "Breyers":"https://www.breyers.com/us/en/home.html?gclid=6af865b4f1dd192ae9240dbe5d579131&gclsrc=3p.ds&msclkid=6af865b4f1dd192ae9240dbe5d579131&utm_source=bing&utm_medium=cpc&utm_campaign=EN_ICEUND_Always-On-Ic-(Breyers)-CN005276_Inf_Txt_CPC_BrndProd_EM_General_BADS_BRY0000251&utm_term=breyers%20ice%20cream&utm_content=Brand_NShop_Brand_General_Em"
     };
-    let firstSearch = true;
+    let firstSearch=true;
     document.getElementById('allergy-toggle').addEventListener('click',()=>document.querySelector('.dropdown-content').classList.toggle('show'));
     window.addEventListener('click',e=>{if(!e.target.matches('#allergy-toggle'))document.querySelector('.dropdown-content').classList.remove('show')});
-    function clearResults(){
-      document.getElementById("answer-box").innerHTML="";
-      document.getElementById("results-title").style.display="none";
-    }
-    function toggleDetails(id){
-      const el=document.getElementById(id);
-      el.style.display=el.style.display==='none'?'block':'none';
-    }
-    function capitalizeIngredients(ingredients){
-      return ingredients.toLowerCase().split(',').map(ing=>ing.trim()).map(ing=>ing.charAt(0).toUpperCase()+ing.slice(1)).join(', ');
-    }
-    function answerBoxTemplate(safeId,brand,title,description,ingredients_y,rating){
-      return `<div class="result"><div class="result-header" onclick="toggleDetails('details-${safeId}')"><h3 class="episode-title">${brand} ${title} <span class="toggle-icon">🍨</span></h3></div><div class="result-details" id="details-${safeId}" style="display:none;"><p><strong>Description:</strong> ${description}</p><p><strong>Ingredients:</strong> ${capitalizeIngredients(ingredients_y)}</p><p><strong>Rating:</strong> ${rating}</p><button class="popup-button" onclick="openPopup('${safeId}')">More information about recommendation</button><a href="${brandUrls[brand]}" target="_blank" class="popup-button" style="text-decoration:none;">${brand} website</a></div></div>`;
-    }
-    const explanationMap={};
-    function openPopup(safeId){
-      const content=explanationMap[safeId];
-      if(!content)return;
-      let html = '<h3>Matched themes:</h3><div>';
-      Object.entries(content).forEach(([field,themes])=>{
-        html += `<p><strong>${field.charAt(0).toUpperCase()+field.slice(1)} themes:</strong> ${themes.map(t=>t.theme||t).join(', ')}</p>`;
-        html += `<canvas id="chart-${safeId}-${field}"></canvas>`;
+    function clearResults(){document.getElementById("answer-box").innerHTML="";document.getElementById("results-title").style.display="none"}
+    function toggleDetails(id){const e=document.getElementById(id);e.style.display=e.style.display==='none'?'block':'none'}
+    function capitalizeIngredients(i){return i.toLowerCase().split(',').map(s=>s.trim()).map(s=>s.charAt(0).toUpperCase()+s.slice(1)).join(', ')}
+    function answerBoxTemplate(id,b,t,d,i,r){return`
+      <div class="result">
+        <div class="result-header" onclick="toggleDetails('details-${id}')">
+          <h3>${b} ${t} <span>🍨</span></h3>
+        </div>
+        <div class="result-details" id="details-${id}" style="display:none;">
+          <p><strong>Description:</strong> ${d}</p>
+          <p><strong>Ingredients:</strong> ${capitalizeIngredients(i)}</p>
+          <p><strong>Rating:</strong> ${r}</p>
+          <button class="popup-button" onclick="openPopup('${id}')">More info</button>
+          <a href="${brandUrls[b]}" target="_blank" class="popup-button">Visit ${b}</a>
+        </div>
+      </div>`}
+    const explanationMap={}
+    function openPopup(id){
+      const c=explanationMap[id];if(!c)return;
+      let h='<h3>Matched themes:</h3><div>';
+      Object.entries(c).forEach(([f,ts])=>{
+        h+=`<p><strong>${f}:</strong> ${ts.map(x=>x.theme).join(', ')}</p>`;
+        h+=`<canvas id="chart-${id}-${f}"></canvas>`;
       });
-      html += '</div><hr style="margin-top:1em;margin-bottom:1em;">';
-      html += '<h3>How we understand your preferences:</h3>';
-      html += '<p>When you search for a flavor, we don’t just match words directly. Instead, we use something called latent dimensions — hidden themes our system has learned from patterns across all descriptions, ingredients, and reviews.</p>';
-      html += '<p>For each flavor we recommend, we show you the top matching themes across different aspects like the description, ingredients, and reviews — so you can see why it’s a great match for your taste.</p>';
-      const container = document.getElementById("popup-content");
-      container.innerHTML = html;
-      Object.entries(content).forEach(([field,themes])=>{
-        const labels = themes.map(t=>t.theme||t);
-        const data    = themes.map(t=>t.score!==undefined?t.score:t.weight||0);
-        new Chart(document.getElementById(`chart-${safeId}-${field}`), {
+      h+='</div><hr><h3>Why these themes?</h3><p>Our system learned hidden themes. These charts show how strongly each word matched.</p>';
+      document.getElementById("popup-content").innerHTML=h;
+      Object.entries(c).forEach(([f,ts])=>{
+        const labs=ts.map(x=>x.theme), vals=ts.map(x=>x.score);
+        new Chart(document.getElementById(`chart-${id}-${f}`),{
           type:'radar',
-          data:{labels:labels,datasets:[{label:`${field.charAt(0).toUpperCase()+field.slice(1)} match`,data:data}]},
+          data:{labels:labs,datasets:[{label:`${f} match`,data:vals}]},
           options:{responsive:true,scales:{r:{beginAtZero:true}}}
         });
       });
       document.getElementById('popup-modal').style.display='flex';
     }
-    function closePopup(){
-      document.getElementById('popup-modal').style.display='none';
-    }
+    function closePopup(){document.getElementById('popup-modal').style.display='none'}
     function fetchFlavors(){
-      const query=document.getElementById("search-input").value.trim();
-      const inResultsMode=document.body.classList.contains('results-mode');
-      const rating=inResultsMode?document.getElementById("rating-filter-2").value:document.getElementById("rating-filter").value;
-      const allergySelector=inResultsMode?'input[name="allergy-2"]:checked':'input[name="allergy"]:checked';
-      const allergies=Array.from(document.querySelectorAll(allergySelector)).map(cb=>cb.value);
-      if(!query)return alert("Please enter a flavor.");
+      const q=document.getElementById("search-input").value.trim();
+      if(!q)return alert("Enter a flavor.");
       clearResults();
       if(firstSearch){
-        document.getElementById('rating-filter-2').value=document.getElementById('rating-filter').value;
-        document.querySelectorAll('input[name="allergy"]').forEach(cb=>{const m=document.querySelector(`input[name="allergy-2"][value="${cb.value}"]`);if(m)m.checked=cb.checked;});
         document.body.classList.replace('initial-mode','results-mode');
         firstSearch=false;
       }
-      fetch("/flavors?"+new URLSearchParams({title:query,min_rating:rating,allergies:allergies.join(',')}))
-      .then(r=>r.json())
-      .then(data=>{
-        const box=document.getElementById("answer-box");
-        if(data.length){
-          document.getElementById("results-title").style.display="block";
-          data.forEach(r=>{explanationMap[r.safeId]=r.explanation;box.insertAdjacentHTML('beforeend',answerBoxTemplate(r.safeId,r.brand,r.title,r.description,r.ingredients_y,r.rating));});
-        } else {
-          box.innerHTML="<p>No results found.</p>";
-        }
-      });
+      const mr=document.body.classList.contains('results-mode')?document.getElementById('rating-filter-2').value:document.getElementById('rating-filter').value;
+      const al=Array.from(document.querySelectorAll(document.body.classList.contains('results-mode')?'input[name="allergy-2"]:checked':'input[name="allergy"]:checked')).map(cb=>cb.value);
+      fetch("/flavors?"+new URLSearchParams({title:q,min_rating:mr,allergies:al.join(',')}))
+        .then(r=>r.json()).then(data=>{
+          const box=document.getElementById("answer-box");
+          if(data.length){
+            document.getElementById("results-title").style.display="block";
+            data.forEach(r=>{explanationMap[r.safeId]=r.explanation;box.insertAdjacentHTML('beforeend',answerBoxTemplate(r.safeId,r.brand,r.title,r.description,r.ingredients_y,r.rating))});
+          } else box.innerHTML="<p>No results found.</p>";
+        });
     }
-    document.getElementById('search-input').addEventListener('input',clearResults);
-    document.getElementById('rating-filter').addEventListener('change',clearResults);
-    document.querySelectorAll('input[name="allergy"]').forEach(cb=>cb.addEventListener('change',clearResults));
     document.getElementById('search-button').addEventListener('click',fetchFlavors);
   </script>
 </body>

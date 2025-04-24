@@ -313,9 +313,9 @@ body.results-mode .search-bar {
     overflow: hidden;
     background: linear-gradient(
       45deg,
-      #f3e6ff 0%,   
-      #e0ccff 50%, 
-      #f3e6ff 100%
+      #d7b2fa 0%,   
+      #a873f8 50%, 
+      #ab5cf5 100%
     );
     background-size: 200% 200%;
     animation: sparkle 3s ease infinite;

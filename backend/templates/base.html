@@ -87,6 +87,13 @@
   </div>
 
   <script>
+    const brandUrls = {
+      "Ben and Jerry's": "https://www.benjerry.com/",
+      "Haagen Dazs": "https://www.icecream.com/us/en/brands/haagen-dazs",
+      "Talenti": "https://www.talentigelato.com/us/en/home.html?gclid=75f717c22d301269ec6c7fc8503e82b7&gclsrc=3p.ds&msclkid=75f717c22d301269ec6c7fc8503e82b7&utm_source=bing&utm_medium=cpc&utm_campaign=EN_ICEUND_NA_General%20Brand_Inform_Keyword_CPC_BrndProd_EM_9454&utm_term=talenti&utm_content=Core-General",
+      "Breyers": "https://www.breyers.com/us/en/home.html?gclid=89039f6ebc2812120204f764c172126e&gclsrc=3p.ds&msclkid=89039f6ebc2812120204f764c172126e&utm_source=bing&utm_medium=cpc&utm_campaign=EN_ICEUND_Always-On-Ic-(Breyers)-CN005276_Inf_Txt_CPC_BrndProd_EM_General_BADS_BRY0000251&utm_term=breyers%20ice%20cream&utm_content=Brand_NShop_Brand_General_Em"
+    };
+
     let firstSearch = true;
     document.getElementById('allergy-toggle').addEventListener('click',()=>{
       document.querySelector('.dropdown-content').classList.toggle('show');
@@ -111,6 +118,7 @@
         .map(ing => ing.charAt(0).toUpperCase() + ing.slice(1))
         .join(', ');
     }
+
     function answerBoxTemplate(safeId,brand,title,description,ingredients_y,rating){
       return `<div class="result">
         <div class="result-header" onclick="toggleDetails('details-${safeId}')">
@@ -121,9 +129,11 @@
           <p><strong>Ingredients:</strong> ${capitalizeIngredients(ingredients_y)}</p>
           <p><strong>Rating:</strong> ${rating}</p>
           <button class="popup-button" onclick="openPopup('${safeId}')">More information about recommendation</button>
+          <button class="brand-button" onclick="window.open(brandUrls[brand], '_blank')">${brand}</button>
         </div>
       </div>`;
     }
+
     const explanationMap = {};
     function openPopup(safeId) {
       const content = explanationMap[safeId];
@@ -153,7 +163,9 @@
       container.innerHTML = themesSection + `<h3>How we understand your preferences:</h3>` + explanation;
       document.getElementById('popup-modal').style.display = 'flex';
     }
-    function closePopup(){document.getElementById('popup-modal').style.display='none'}
+    function closePopup(){
+      document.getElementById('popup-modal').style.display='none'
+    }
     function fetchFlavors(){
       const query=document.getElementById("search-input").value.trim();
       const inResultsMode = document.body.classList.contains('results-mode');
@@ -164,9 +176,7 @@
       const allergies = Array.from(document.querySelectorAll(allergySelector)).map(cb => cb.value);
       if(!query) return alert("Please enter a flavor.");
       clearResults();
-
       if(firstSearch){
-        // —— COPY INLINE FILTERS INTO SIDEBAR ONCE —— 
         document.getElementById('rating-filter-2').value = document.getElementById('rating-filter').value;
         document.querySelectorAll('input[name="allergy"]').forEach(cb => {
           const match = document.querySelector(`input[name="allergy-2"][value="${cb.value}"]`);
@@ -175,7 +185,6 @@
         document.body.classList.replace('initial-mode','results-mode');
         firstSearch=false;
       }
-
       fetch("/flavors?"+new URLSearchParams({
         title: query,
         min_rating: rating,

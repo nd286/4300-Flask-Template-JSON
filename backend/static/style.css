@@ -239,6 +239,10 @@ body.results-mode .search-bar {
     padding: 20px;
 }
 
+.checkbox-group {
+    padding-top: 8px;
+}
+
 .filters-sidebar {
     width: 240px;
     background: #E4C3A4;

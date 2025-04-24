@@ -34,7 +34,8 @@ button {
 #rating-filter {
     border-radius: 12px;
     /* margin-left: 8px; */
-    border: none;
+    /* border: none; */
+    border: solid 1px #f7a9a8;
     padding: 8px;
     cursor: pointer;
 
@@ -42,7 +43,8 @@ button {
 
 #rating-filter-2 {
     cursor: pointer;
-    border: none;
+    /* border: none; */
+    border: 1px solid #C49A6C;
     border-radius: 8px;
     padding-top: 8px;
     padding-bottom: 8px;
@@ -54,7 +56,8 @@ button {
 
 #allergy-toggle {
     background-color: white;
-    border: none;
+    /* border: none; */
+    border: solid 1px #f7a9a8;
     height: 32px;
 }
 
@@ -87,7 +90,9 @@ body.results-mode {
 .header-container {
     width: 100%;
     background-color: #f7a9a8;
+    /* border-bottom: solid #F4D0D9 1px; */
     padding: 40px 20px;
+    align-content: center;
 }
 
 body.initial-mode .header-container {
@@ -168,15 +173,23 @@ body.results-mode .search-bar {
 .search-bar input {
     flex: 1;
     padding: 12px 16px;
-    border: none;
+    /* border: none; */
+    border-top: solid 1px #f28482;
+    border-left: solid 1px #f28482;
+    border-bottom: solid 1px #f28482;
+    border-right: none;
     border-radius: 16px 0 0 16px;
     font-size: 16px;
 }
 
 .search-bar button {
     padding: 12px 16px;
-    border: none;
+    border-left: none;
     background-color: #3D3D3D;
+    border-top: solid #2a2a2a 1px;
+    border-right: solid #2a2a2a 1px;
+    border-bottom: solid #2a2a2a 1px;
+
     color: white;
     border-radius: 0 16px 16px 0;
     cursor: pointer;
@@ -242,6 +255,7 @@ body.results-mode .search-bar {
 .filters-sidebar {
     width: 240px;
     background: #E4C3A4;
+    border: solid 1px #C49A6C;
     padding: 15px;
     border-radius: 8px;
     margin-right: 20px;
@@ -291,6 +305,8 @@ body.results-mode .search-bar {
     cursor: pointer;
     display: flex;
     justify-content: space-between;
+    border: #2A3D66 1px solid;
+    border-radius: 12px 12px 0px 0px;
 }
 
 .result-header:hover {
@@ -300,6 +316,9 @@ body.results-mode .search-bar {
 .result-details {
     background: white;
     padding: 12px;
+    border-bottom: solid 1px #F4D0D9;
+    border-right: solid 1px #F4D0D9;
+    border-left: solid 1px #F4D0D9;
 }
 
 .popup-button {

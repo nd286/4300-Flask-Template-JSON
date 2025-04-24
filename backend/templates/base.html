@@ -9,27 +9,26 @@
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Kanit&family=Montserrat&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="initial-mode">
-
   <header class="header-container">
-    <img src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Logo" class="logo-image">
+    <img src="{{ url_for('static', filename='images/Godmother.png') }}" class="logo-image" alt="Logo">
     <div class="title-container">
-      <h1 class="main-title">Dairy Godmothers</h1>
-      <img src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Logo small" class="logo-small">
+      <h1 class="main-title">Dairy Godmothers</h1>
+      <img src="{{ url_for('static', filename='images/Godmother.png') }}" class="logo-small" alt="Logo small">
     </div>
     <div class="search-bar">
       <input id="search-input" placeholder="Search for an Ice Cream Flavor">
-      <button id="search-button">Find My Flavors</button>
+      <button id="search-button">Find My Flavors</button>
     </div>
     <div class="filters-inline">
       <div class="filter-item">
         <label for="rating-filter">Minimum Rating:</label>
         <select id="rating-filter">
           <option value="0">Any</option>
-          <option value="1">1+ stars</option>
-          <option value="2">2+ stars</option>
-          <option value="3">3+ stars</option>
-          <option value="4">4+ stars</option>
-          <option value="5">5 stars only</option>
+          <option value="1">1+ stars</option>
+          <option value="2">2+ stars</option>
+          <option value="3">3+ stars</option>
+          <option value="4">4+ stars</option>
+          <option value="5">5 stars only</option>
         </select>
       </div>
       <div class="filter-item">
@@ -55,11 +54,11 @@
         <label for="rating-filter-2">Minimum Rating:</label>
         <select id="rating-filter-2">
           <option value="0">Any</option>
-          <option value="1">1+ stars</option>
-          <option value="2">2+ stars</option>
-          <option value="3">3+ stars</option>
-          <option value="4">4+ stars</option>
-          <option value="5">5 stars only</option>
+          <option value="1">1+ stars</option>
+          <option value="2">2+ stars</option>
+          <option value="3">3+ stars</option>
+          <option value="4">4+ stars</option>
+          <option value="5">5 stars only</option>
         </select>
       </div>
       <div class="filter-item">
@@ -88,29 +87,20 @@
 
   <script>
     let firstSearch = true;
-    document.getElementById('allergy-toggle').addEventListener('click',()=>{
-      document.querySelector('.dropdown-content').classList.toggle('show');
-    });
-    window.addEventListener('click',e=>{
-      if(!e.target.matches('#allergy-toggle'))
-        document.querySelector('.dropdown-content').classList.remove('show');
-    });
+    const allergyToggle = document.getElementById('allergy-toggle');
+    allergyToggle.addEventListener('click',()=>document.querySelector('.dropdown-content').classList.toggle('show'));
+    window.addEventListener('click',e=>{ if(!e.target.matches('#allergy-toggle')) document.querySelector('.dropdown-content').classList.remove('show') });
+
     function clearResults(){
       document.getElementById("answer-box").innerHTML="";
       document.getElementById("results-title").style.display="none";
     }
+
     function toggleDetails(id){
       const el=document.getElementById(id);
-      el.style.display=(el.style.display==='none'?'block':'none');
+      el.style.display=el.style.display==='none'?'block':'none';
     }
-    function capitalizeIngredients(ingredients) {
-      return ingredients
-        .toLowerCase()
-        .split(',')
-        .map(ing => ing.trim())
-        .map(ing => ing.charAt(0).toUpperCase() + ing.slice(1))
-        .join(', ');
-    }
+
     function answerBoxTemplate(safeId,brand,title,description,ingredients_y,rating){
       return `<div class="result">
         <div class="result-header" onclick="toggleDetails('details-${safeId}')">
@@ -118,78 +108,58 @@
         </div>
         <div class="result-details" id="details-${safeId}" style="display:none;">
           <p><strong>Description:</strong> ${description}</p>
-          <p><strong>Ingredients:</strong> ${capitalizeIngredients(ingredients_y)}</p>
+          <p><strong>Ingredients:</strong> ${ingredients_y}</p>
           <p><strong>Rating:</strong> ${rating}</p>
           <button class="popup-button" onclick="openPopup('${safeId}')">More information about recommendation</button>
         </div>
       </div>`;
     }
-    const explanationMap = {};
-    function openPopup(safeId) {
-      const content = explanationMap[safeId];
-      if (!content) return;
-      const themesSection = `
-        <h3>Matched themes:</h3>
-        <div>
-          ${Object.entries(content).map(([field, themes]) => {
-            return `<p><strong>${field.charAt(0).toUpperCase() + field.slice(1)} themes:</strong> ${themes.join(", ")}</p>`;
-          }).join('')}
-        </div>
-        <hr style="margin-top: 1em; margin-bottom: 1em;">
-      `;
 
-      const explanation = `
-        <p>
-          When you search for a flavor, we don’t just match words directly. Instead, we use something called 
-          latent dimensions — hidden themes our system has learned from patterns across all descriptions, ingredients, 
-          and reviews. These themes might represent things like “rich & chocolatey,” “fruity & tangy,” or 
-          “creamy & smooth” — even if those exact words aren’t used.
-        </p>
-        <p>
-          For each flavor we recommend, we show you the top matching themes across different aspects like the description, 
-          ingredients, and reviews — so you can see why it’s a great match for your taste.
-        </p>
-      `;
-      const container = document.getElementById("popup-content");
-      container.innerHTML = themesSection + `<h3>How we understand your preferences:</h3>` + explanation;
-      document.getElementById('popup-modal').style.display = 'flex';
-    }  
+    const explanationMap = {};
+
+    function openPopup(safeId){
+      const content=explanationMap[safeId]||{};
+      const themes=Object.entries(content).map(([f,t])=>`<p><strong>${f.charAt(0).toUpperCase()+f.slice(1)} themes:</strong> ${t.join(", ")}</p>`).join("");
+      const explanation=`<p>When you search for a flavor, we use hidden themes…</p>`;
+      document.getElementById("popup-content").innerHTML=themes+explanation;
+      document.getElementById('popup-modal').style.display='flex';
+    }
     function closePopup(){document.getElementById('popup-modal').style.display='none'}
+
     function fetchFlavors(){
       const query=document.getElementById("search-input").value.trim();
-      const inResultsMode = document.body.classList.contains('results-mode');
-      const rating = inResultsMode 
-        ? document.getElementById("rating-filter-2").value 
-        : document.getElementById("rating-filter").value;
-      const allergySelector = inResultsMode ? 'input[name="allergy-2"]:checked' : 'input[name="allergy"]:checked';
-      const allergies = Array.from(document.querySelectorAll(allergySelector)).map(cb => cb.value);
+      const inResults=document.body.classList.contains('results-mode');
+      const rating=inResults?document.getElementById("rating-filter-2").value:document.getElementById("rating-filter").value;
+      const sel=inResults?'input[name="allergy-2"]:checked':'input[name="allergy"]:checked';
+      const allergies=Array.from(document.querySelectorAll(sel)).map(cb=>cb.value);
       if(!query) return alert("Please enter a flavor.");
       clearResults();
       if(firstSearch){
         document.body.classList.replace('initial-mode','results-mode');
+        document.getElementById("rating-filter-2").value=rating;
+        allergies.forEach(v=>{
+          const cb2=document.querySelector(`input[name="allergy-2"][value="${v}"]`);
+          if(cb2) cb2.checked=true;
+        });
         firstSearch=false;
       }
-      fetch("/flavors?"+new URLSearchParams({
-        title: query,
-        min_rating: rating,
-        allergies: allergies.join(',')
-      }))
-      .then(r=>r.json())
-      .then(data=>{
+      fetch("/flavors?"+new URLSearchParams({title:query,min_rating:rating,allergies:allergies.join(',')}))
+      .then(r=>r.json()).then(data=>{
         const box=document.getElementById("answer-box");
         if(data.length) document.getElementById("results-title").style.display="block";
         data.forEach(r=>{
-          explanationMap[r.safeId] = r.explanation;
-          box.insertAdjacentHTML('beforeend',
-            answerBoxTemplate(r.safeId,r.brand,r.title,r.description,r.ingredients_y,r.rating)
-          );
+          explanationMap[r.safeId]=r.explanation;
+          box.insertAdjacentHTML('beforeend',answerBoxTemplate(r.safeId,r.brand,r.title,r.description,r.ingredients_y,r.rating));
         });
       });
     }
+
     document.getElementById('search-input').addEventListener('input',clearResults);
     document.getElementById('rating-filter').addEventListener('change',clearResults);
     document.querySelectorAll('input[name="allergy"]').forEach(cb=>cb.addEventListener('change',clearResults));
     document.getElementById('search-button').addEventListener('click',fetchFlavors);
+    document.getElementById('rating-filter-2').addEventListener('change',clearResults);
+    document.querySelectorAll('input[name="allergy-2"]').forEach(cb=>cb.addEventListener('change',clearResults));
   </script>
 </body>
 </html>

@@ -354,12 +354,12 @@ body.results-mode .search-bar {
   .modal-content canvas {
     display: block;
     margin: 1em auto;
-    width: 400px !important;
-    height: 400px !important;
-    max-width: 400px !important;
-    max-height: 400px !important;
+    width: 500px !important;
+    height: 500px !important;
+    max-width: 500px !important;
+    max-height: 500px !important;
   }
 
   .result-details p {
-    margin-bottom: 0.75em;
+    margin-bottom: 0.25em;
   }

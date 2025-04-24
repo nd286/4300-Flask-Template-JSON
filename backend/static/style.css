@@ -359,3 +359,7 @@ body.results-mode .search-bar {
     max-width: 400px !important;
     max-height: 400px !important;
   }
+
+  .result-details p {
+    margin-bottom: 0.75em;
+  }

@@ -293,7 +293,7 @@ body.results-mode .search-bar {
 }
 
 .popup-button {
-    background-color: #B19CD9; /* sparkle purple */
+    background-color: #f7a9a8; 
     border: 1px solid white;
     color: black;
     padding: 6px 12px;
@@ -305,24 +305,9 @@ body.results-mode .search-bar {
 }
 
 .popup-button:hover {
-    background-color: #9A86C1; /* a slightly deeper purple on hover */
+    background-color: #f47977; 
 }
 
-.popup-button {
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(
-      45deg,
-      #f6cfd6 0%,   
-      #f99dbc 50%,  
-      #fa7f95 100%
-    );
-    background-size: 200% 200%;
-    animation: sparkle 3s ease infinite;
-    color: white;
-    border: none;
-    text-decoration: none;
-  }
   
   @keyframes sparkle {
     0%   { background-position: 0%   50%; }

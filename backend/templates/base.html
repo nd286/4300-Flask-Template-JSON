@@ -9,11 +9,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Kanit&family=Montserrat&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="initial-mode">
+
   <header class="header-container">
-    <img src="{{ url_for('static', filename='images/Godmother.png') }}" class="logo-image" alt="Logo">
+    <img src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Logo" class="logo-image">
     <div class="title-container">
       <h1 class="main-title">Dairy Godmothers</h1>
-      <img src="{{ url_for('static', filename='images/Godmother.png') }}" class="logo-small" alt="Logo small">
+      <img src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Logo small" class="logo-small">
     </div>
     <div class="search-bar">
       <input id="search-input" placeholder="Search for an Ice Cream Flavor">
@@ -87,28 +88,45 @@
 
   <script>
     let firstSearch = true;
-    const allergyToggle = document.getElementById('allergy-toggle');
-    allergyToggle.addEventListener('click',()=>document.querySelector('.dropdown-content').classList.toggle('show'));
-    window.addEventListener('click',e=>{ if(!e.target.matches('#allergy-toggle')) document.querySelector('.dropdown-content').classList.remove('show') });
 
-    function clearResults(){
-      document.getElementById("answer-box").innerHTML="";
-      document.getElementById("results-title").style.display="none";
+    document.getElementById('allergy-toggle').addEventListener('click', () => {
+      document.querySelector('.dropdown-content').classList.toggle('show');
+    });
+
+    window.addEventListener('click', e => {
+      if (!e.target.matches('#allergy-toggle')) {
+        document.querySelector('.dropdown-content').classList.remove('show');
+      }
+    });
+
+    function clearResults() {
+      document.getElementById("answer-box").innerHTML = "";
+      document.getElementById("results-title").style.display = "none";
     }
 
-    function toggleDetails(id){
-      const el=document.getElementById(id);
-      el.style.display=el.style.display==='none'?'block':'none';
+    function toggleDetails(id) {
+      const el = document.getElementById(id);
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
 
-    function answerBoxTemplate(safeId,brand,title,description,ingredients_y,rating){
-      return `<div class="result">
+    function capitalizeIngredients(ingredients) {
+      return ingredients
+        .toLowerCase()
+        .split(',')
+        .map(ing => ing.trim())
+        .map(ing => ing.charAt(0).toUpperCase() + ing.slice(1))
+        .join(', ');
+    }
+
+    function answerBoxTemplate(safeId, brand, title, description, ingredients_y, rating) {
+      return `
+      <div class="result">
         <div class="result-header" onclick="toggleDetails('details-${safeId}')">
           <h3 class="episode-title">${brand} ${title} <span class="toggle-icon">🍨</span></h3>
         </div>
         <div class="result-details" id="details-${safeId}" style="display:none;">
           <p><strong>Description:</strong> ${description}</p>
-          <p><strong>Ingredients:</strong> ${ingredients_y}</p>
+          <p><strong>Ingredients:</strong> ${capitalizeIngredients(ingredients_y)}</p>
           <p><strong>Rating:</strong> ${rating}</p>
           <button class="popup-button" onclick="openPopup('${safeId}')">More information about recommendation</button>
         </div>
@@ -117,49 +135,74 @@
 
     const explanationMap = {};
 
-    function openPopup(safeId){
-      const content=explanationMap[safeId]||{};
-      const themes=Object.entries(content).map(([f,t])=>`<p><strong>${f.charAt(0).toUpperCase()+f.slice(1)} themes:</strong> ${t.join(", ")}</p>`).join("");
-      const explanation=`<p>When you search for a flavor, we use hidden themes…</p>`;
-      document.getElementById("popup-content").innerHTML=themes+explanation;
-      document.getElementById('popup-modal').style.display='flex';
+    function openPopup(safeId) {
+      const content = explanationMap[safeId];
+      if (!content) return;
+      const themesSection = `
+        <h3>Matched themes:</h3>
+        ${Object.entries(content).map(([field, themes]) =>
+          `<p><strong>${field.charAt(0).toUpperCase() + field.slice(1)} themes:</strong> ${themes.join(", ")}</p>`
+        ).join('')}
+        <hr>
+      `;
+      const explanation = `
+        <h3>How we understand your preferences:</h3>
+        <p>When you search for a flavor, we don’t just match words directly…</p>
+      `;
+      document.getElementById("popup-content").innerHTML = themesSection + explanation;
+      document.getElementById('popup-modal').style.display = 'flex';
     }
-    function closePopup(){document.getElementById('popup-modal').style.display='none'}
 
-    function fetchFlavors(){
-      const query=document.getElementById("search-input").value.trim();
-      const inResults=document.body.classList.contains('results-mode');
-      const rating=inResults?document.getElementById("rating-filter-2").value:document.getElementById("rating-filter").value;
-      const sel=inResults?'input[name="allergy-2"]:checked':'input[name="allergy"]:checked';
-      const allergies=Array.from(document.querySelectorAll(sel)).map(cb=>cb.value);
-      if(!query) return alert("Please enter a flavor.");
+    function closePopup() {
+      document.getElementById('popup-modal').style.display = 'none';
+    }
+
+    function fetchFlavors() {
+      const query = document.getElementById("search-input").value.trim();
+      const inResultsMode = document.body.classList.contains('results-mode');
+      const rating = inResultsMode
+        ? document.getElementById("rating-filter-2").value
+        : document.getElementById("rating-filter").value;
+      const allergySelector = inResultsMode ? 'input[name="allergy-2"]:checked' : 'input[name="allergy"]:checked';
+      const allergies = Array.from(document.querySelectorAll(allergySelector)).map(cb => cb.value);
+
+      if (!query) return alert("Please enter a flavor.");
       clearResults();
-      if(firstSearch){
-        document.body.classList.replace('initial-mode','results-mode');
-        document.getElementById("rating-filter-2").value=rating;
-        allergies.forEach(v=>{
-          const cb2=document.querySelector(`input[name="allergy-2"][value="${v}"]`);
-          if(cb2) cb2.checked=true;
+
+      if (firstSearch) {
+        document.getElementById('rating-filter-2').value = document.getElementById('rating-filter').value;
+        document.querySelectorAll('input[name="allergy"]').forEach(cb => {
+          if (cb.checked) {
+            const cb2 = document.querySelector(`input[name="allergy-2"][value="${cb.value}"]`);
+            if (cb2) cb2.checked = true;
+          }
         });
-        firstSearch=false;
+        document.body.classList.replace('initial-mode', 'results-mode');
+        firstSearch = false;
       }
-      fetch("/flavors?"+new URLSearchParams({title:query,min_rating:rating,allergies:allergies.join(',')}))
-      .then(r=>r.json()).then(data=>{
-        const box=document.getElementById("answer-box");
-        if(data.length) document.getElementById("results-title").style.display="block";
-        data.forEach(r=>{
-          explanationMap[r.safeId]=r.explanation;
-          box.insertAdjacentHTML('beforeend',answerBoxTemplate(r.safeId,r.brand,r.title,r.description,r.ingredients_y,r.rating));
+
+      fetch("/flavors?" + new URLSearchParams({
+        title: query,
+        min_rating: rating,
+        allergies: allergies.join(',')
+      }))
+      .then(r => r.json())
+      .then(data => {
+        const box = document.getElementById("answer-box");
+        if (data.length) document.getElementById("results-title").style.display = "block";
+        data.forEach(r => {
+          explanationMap[r.safeId] = r.explanation;
+          box.insertAdjacentHTML('beforeend',
+            answerBoxTemplate(r.safeId, r.brand, r.title, r.description, r.ingredients_y, r.rating)
+          );
         });
       });
     }
 
-    document.getElementById('search-input').addEventListener('input',clearResults);
-    document.getElementById('rating-filter').addEventListener('change',clearResults);
-    document.querySelectorAll('input[name="allergy"]').forEach(cb=>cb.addEventListener('change',clearResults));
-    document.getElementById('search-button').addEventListener('click',fetchFlavors);
-    document.getElementById('rating-filter-2').addEventListener('change',clearResults);
-    document.querySelectorAll('input[name="allergy-2"]').forEach(cb=>cb.addEventListener('change',clearResults));
+    document.getElementById('search-input').addEventListener('input', clearResults);
+    document.getElementById('rating-filter').addEventListener('change', clearResults);
+    document.querySelectorAll('input[name="allergy"]').forEach(cb => cb.addEventListener('change', clearResults));
+    document.getElementById('search-button').addEventListener('click', fetchFlavors);
   </script>
 </body>
 </html>

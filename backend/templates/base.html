@@ -88,8 +88,8 @@
     const brandUrls = {
       "Ben and Jerry's": "https://www.benjerry.com/",
       "Haagen Dazs": "https://www.icecream.com/us/en/brands/haagen-dazs",
-      "Talenti": "https://www.talentigelato.com/us/en/home.html?gclid=75f717c22d301269ec6c7fc8503e82b7&gclsrc=3p.ds&msclkid=75f717c22d301269ec6c7fc8503e82b7&utm_source=bing&utm_medium=cpc&utm_campaign=EN_ICEUND_NA_General%20Brand_Inform_Keyword_CPC_BrndProd_EM_9454&utm_term=talenti&utm_content=Core-General",
-      "Breyers": "https://www.breyers.com/us/en/home.html?gclid=89039f6ebc2812120204f764c172126e&gclsrc=3p.ds&msclkid=89039f6ebc2812120204f764c172126e&utm_source=bing&utm_medium=cpc&utm_campaign=EN_ICEUND_Always-On-Ic-(Breyers)-CN005276_Inf_Txt_CPC_BrndProd_EM_General_BADS_BRY0000251&utm_term=breyers%20ice%20cream&utm_content=Brand_NShop_Brand_General_Em"
+      "Talenti": "https://www.talentigelato.com/us/en/home.html",
+      "Breyers": "https://www.breyers.com/us/en/home.html"
     };
     let firstSearch = true;
     document.getElementById('allergy-toggle').addEventListener('click', () => document.querySelector('.dropdown-content').classList.toggle('show'));
@@ -118,10 +118,8 @@
         const title = field.charAt(0).toUpperCase() + field.slice(1);
         html += `<h4>${title}:</h4><canvas id="chart-${safeId}-${field}" width="400" height="400"></canvas>`;
       });
-      html += `<hr style="margin:1em 0;">`;
-      html += explanation;
-      const container = document.getElementById("popup-content");
-      container.innerHTML = html;
+      html += `<hr style="margin:1em 0;">` + explanation;
+      document.getElementById("popup-content").innerHTML = html;
       document.getElementById("popup-modal").style.display = "flex";
       Object.entries(content).forEach(([field, data]) => {
         const ctx = document.getElementById(`chart-${safeId}-${field}`).getContext('2d');

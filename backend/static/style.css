@@ -363,3 +363,45 @@ body.results-mode .search-bar {
   .result-details p {
     margin-bottom: 0.25em;
   }
+  
+.star-rating {
+    display: inline-block;
+    position: relative;
+    font-size: 24px;
+    width: 120px;   /* 5 stars × 24px */
+    height: 24px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .star-rating .star-bg,
+  .star-rating .star-fg {
+    position: absolute;
+    top: 0; left: 0;
+    white-space: nowrap;
+  }
+  .star-rating .star-bg {
+    color: #ccc;
+  }
+  .star-rating .star-fg {
+    color: #fc0;
+    overflow: hidden;
+  }
+  .star-rating .star-bg::before,
+  .star-rating .star-fg::before {
+    content: '★★★★★';
+  }
+  
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .score {
+    font-size: 14px;
+    font-weight: 600;
+    background: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #3D3D3D;
+  }
+  

@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>{{ title }}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/Ktv1E6b4D+6JoZMkZ8o6+QN6Ejw4B1XME93v8u4PvsdgXdy" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,8 +24,13 @@
     <div class="filters-inline">
       <div class="filter-item">
         <label>Minimum Rating:</label>
-        <div id="rating-filter" class="star-rating" data-rating="0"></div>
-        <span id="rating-filter-value">Any</span>
+        <div class="star-filter" id="rating-filter">
+          <i class="far fa-star" data-value="1"></i>
+          <i class="far fa-star" data-value="2"></i>
+          <i class="far fa-star" data-value="3"></i>
+          <i class="far fa-star" data-value="4"></i>
+          <i class="far fa-star" data-value="5"></i>
+        </div>
       </div>
       <div class="filter-item">
         <label for="allergy-toggle">Allergies:</label>
@@ -46,8 +52,13 @@
       <h2>Filters</h2>
       <div class="filter-item">
         <label>Minimum Rating:</label>
-        <div id="rating-filter-2" class="star-rating" data-rating="0"></div>
-        <span id="rating-filter-2-value">Any</span>
+        <div class="star-filter" id="rating-filter-2">
+          <i class="far fa-star" data-value="1"></i>
+          <i class="far fa-star" data-value="2"></i>
+          <i class="far fa-star" data-value="3"></i>
+          <i class="far fa-star" data-value="4"></i>
+          <i class="far fa-star" data-value="5"></i>
+        </div>
       </div>
       <div class="filter-item">
         <label>Allergies:</label>
@@ -73,31 +84,6 @@
     </div>
   </div>
   <script>
-    // ★ STAR-RATING WIDGET ★
-    function initStarRating(elem, display) {
-      const bg = document.createElement('div'), fg = document.createElement('div');
-      bg.className = 'star-bg'; fg.className = 'star-fg';
-      elem.append(bg, fg);
-      function setFill(widthPx) {
-        const w = Math.min(Math.max(widthPx, 0), elem.clientWidth);
-        let rating = Math.round((w/elem.clientWidth*5)*2)/2;
-        fg.style.width = (rating/5*100) + '%';
-        return rating;
-      }
-      elem.addEventListener('mousemove', e =>
-        setFill(e.clientX - elem.getBoundingClientRect().left)
-      );
-      elem.addEventListener('mouseout', () => {
-        const saved = parseFloat(elem.dataset.rating)||0;
-        fg.style.width = (saved/5*100)+'%';
-      });
-      elem.addEventListener('click', e => {
-        const r = setFill(e.clientX - elem.getBoundingClientRect().left);
-        elem.dataset.rating = r;
-        display.textContent = r>0 ? r+' stars' : 'Any';
-      });
-    }
-
     const brandUrls = {
       "Ben and Jerry's": "https://www.benjerry.com/",
       "Haagen Dazs": "https://www.icecream.com/us/en/brands/haagen-dazs",
@@ -112,6 +98,36 @@
       if (!e.target.matches('#allergy-toggle')) {
         document.querySelector('.dropdown-content').classList.remove('show');
       }
+    });
+
+    // Star filter logic
+    let ratingFilter = 0;
+    function updateStarFilter(filterId) {
+      const stars = document.querySelectorAll(`#${filterId} i`);
+      stars.forEach(star => {
+        const starValue = parseInt(star.getAttribute('data-value'));
+        if (ratingFilter >= starValue) {
+          star.className = 'fas fa-star';
+        } else if (ratingFilter >= starValue - 0.5) {
+          star.className = 'fas fa-star-half-alt';
+        } else {
+          star.className = 'far fa-star';
+        }
+      });
+    }
+    document.querySelectorAll('.star-filter i').forEach(star => {
+      star.addEventListener('click', function(e) {
+        const fullValue = parseInt(this.getAttribute('data-value'));
+        const rect = this.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        if (clickX < rect.width / 2) {
+          ratingFilter = fullValue - 0.5;
+        } else {
+          ratingFilter = fullValue;
+        }
+        updateStarFilter(this.parentElement.id);
+        clearResults();
+      });
     });
 
     function clearResults() {
@@ -130,17 +146,12 @@
         .map(i => i.charAt(0).toUpperCase() + i.slice(1))
         .join(', ');
     }
-
-    const explanationMap = {};
     function answerBoxTemplate(id, brand, title, desc, ing, rating, score) {
       return `
         <div class="result">
           <div class="result-header" onclick="toggleDetails('details-${id}')">
-            <h3>${brand} ${title}</h3>
-            <div class="header-right">
-              <span class="score">${score.toFixed(2)}</span>
-              <span class="toggle-icon">🍨</span>
-            </div>
+            <h3>${brand} ${title} <span class="toggle-icon">🍨</span></h3>
+            <div class="similarity-score">${score.toFixed(2)}</div>
           </div>
           <div class="result-details" id="details-${id}" style="display:none;">
             <p><strong>Description:</strong> ${desc}</p>
@@ -152,103 +163,24 @@
         </div>
       `;
     }
-
-    function openPopup(id) {
-      const content = explanationMap[id];
-      if (!content) return;
-      let html = `
-        <p style="margin-bottom:1em;">
-          When you search for a flavor, we don’t just match words directly.
-          Instead, we use latent dimensions — hidden themes our system has learned
-          from patterns across all descriptions, subhead, ingredients, and reviews.
-        </p>
-        <p style="margin-bottom:2em;">
-          Below you see each theme plotted with how strongly it matched your query.
-        </p>
-        <hr style="margin-bottom:2em;" />
-      `;
-      Object.entries(content).forEach(([field, data]) => {
-        const title = field.charAt(0).toUpperCase() + field.slice(1);
-        html += `
-          <h4 style="margin-top:1.5em;">${title}</h4>
-          <p style="font-style:italic; margin-bottom:0.5em;">
-            Themes: ${data.themes.join(', ')}
-          </p>
-          <canvas id="chart-${id}-${field}" width="300" height="300" style="max-width:100%;"></canvas>
-        `;
-      });
-      document.getElementById("popup-content").innerHTML = html;
-      document.getElementById("popup-modal").style.display = "flex";
-      Object.entries(content).forEach(([field, data]) => {
-        const ctx = document.getElementById(`chart-${id}-${field}`).getContext('2d');
-        new Chart(ctx, {
-          type: 'radar',
-          data: {
-            labels: data.themes,
-            datasets: [{
-              label: `${field} match`,
-              data: data.scores,
-              fill: true,
-              backgroundColor: 'rgba(209,73,91,0.3)',
-              borderColor: 'rgb(209,73,91)',
-              borderWidth: 2,
-              pointBackgroundColor: 'rgb(209,73,91)',
-              pointBorderColor: '#fff',
-              pointRadius: 5,
-              tension: 0.4
-            }]
-          },
-          options: {
-            elements: {
-              line: { tension: 0.4 }
-            },
-            scales: {
-              r: {
-                pointLabels: {
-                  font: {
-                    weight: 'bold'
-                  }
-                },
-                angleLines: { color: 'rgba(0,0,0,0.05)' },
-                grid:       { color: 'rgba(0,0,0,0.05)' },
-                ticks:      { backdropColor: 'rgba(255,255,255,0.9)' }
-              }
-            },
-            plugins: { legend: { display: false } }
-          }
-        });
-      });
-    }
-    function closePopup() {
-      document.getElementById('popup-modal').style.display = 'none';
-    }
-
+    const explanationMap = {};
     function fetchFlavors() {
       const query = document.getElementById("search-input").value.trim();
       const inResultsMode = document.body.classList.contains('results-mode');
-      const ratingElem = inResultsMode
-        ? document.getElementById("rating-filter-2")
-        : document.getElementById("rating-filter");
-      const rating = parseFloat(ratingElem.dataset.rating) || 0;
-      const selector = inResultsMode
-        ? 'input[name="allergy-2"]:checked'
-        : 'input[name="allergy"]:checked';
-      const allergies = Array.from(document.querySelectorAll(selector)).map(cb => cb.value);
-      if (!query) { alert("Please enter a flavor."); return; }
+      const allergies = Array.from(document.querySelectorAll(inResultsMode ? 'input[name="allergy-2"]:checked' : 'input[name="allergy"]:checked')).map(cb => cb.value);
+      if (!query) {
+        alert("Please enter a flavor.");
+        return;
+      }
       clearResults();
+      let usedRating = ratingFilter;
       if (firstSearch) {
-        const initRating = document.getElementById('rating-filter').dataset.rating;
-        if (initRating) {
-          document.getElementById('rating-filter-2').dataset.rating = initRating;
-          document.getElementById('rating-filter-2-value').textContent = initRating + ' stars';
-          document.querySelector('#rating-filter-2 .star-fg').style.width = (initRating/5*100) + '%';
-        }
         document.body.classList.replace('initial-mode','results-mode');
         firstSearch = false;
       }
       fetch("/flavors?" + new URLSearchParams({
         title: query,
-        min_rating: rating,
+        min_rating: usedRating,
         allergies: allergies.join(',')
       }))
       .then(r => r.json())
@@ -259,11 +191,7 @@
           data.forEach(r => {
             explanationMap[r.safeId] = r.explanation;
             box.insertAdjacentHTML('beforeend',
-              answerBoxTemplate(
-                r.safeId, r.brand, r.title,
-                r.description, r.ingredients_y,
-                r.rating, r.composite_score
-              )
+              answerBoxTemplate(r.safeId, r.brand, r.title, r.description, r.ingredients_y, r.rating, r.composite_score)
             );
           });
         } else {
@@ -271,8 +199,6 @@
         }
       });
     }
-    document.getElementById('search-input').addEventListener('input', clearResults);
-    document.querySelectorAll('input[name="allergy"]').forEach(cb => cb.addEventListener('change', clearResults));
     document.getElementById('search-button').addEventListener('click', fetchFlavors);
   </script>
 </body>

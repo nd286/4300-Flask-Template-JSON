@@ -116,6 +116,10 @@
   .filter-item {
     display: inline-block;
   }
+  /* wider dropdown on first page */
+  body.initial-mode .filters-inline .allergy-dropdown #allergy-toggle {
+    min-width: 140px;
+  }
   .allergy-dropdown {
     position: relative;
     display: inline-block;
@@ -157,7 +161,8 @@
   .filters-sidebar h2 {
     margin-bottom: 10px;
   }
-  .filters-sidebar .filter-item:first-child .star-rating {
+  /* space between stars and allergy in second page */
+  body.results-mode .filters-sidebar .star-rating {
     margin-bottom: 20px;
   }
   .checkbox-group label {
@@ -273,21 +278,11 @@
   .star-rating label {
     cursor: pointer;
     color: #fff;
-    position: relative;
   }
   .star-rating label:before {
     font-family: "Font Awesome 6 Free";
     font-weight: 900;
     content: "\f005";
-  }
-  .star-rating label.half:before {
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    content: "\f089";
-    width: 12px;
-    overflow: hidden;
-    position: absolute;
-    left: 0;
   }
   .star-rating input:checked ~ label,
   .star-rating label:hover,

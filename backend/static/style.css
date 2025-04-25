@@ -116,9 +116,8 @@
   .filter-item {
     display: inline-block;
   }
-  /* wider dropdown on first page */
   body.initial-mode .filters-inline .allergy-dropdown #allergy-toggle {
-    min-width: 140px;
+    min-width: 150px;
   }
   .allergy-dropdown {
     position: relative;
@@ -161,9 +160,8 @@
   .filters-sidebar h2 {
     margin-bottom: 10px;
   }
-  /* space between stars and allergy in second page */
-  body.results-mode .filters-sidebar .star-rating {
-    margin-bottom: 20px;
+  body.results-mode .filters-sidebar .filter-item:first-child {
+    margin-bottom: 16px;
   }
   .checkbox-group label {
     display: block;
@@ -268,8 +266,6 @@
   }
   .star-rating {
     display: inline-flex;
-    direction: rtl;
-    font-size: 24px;
     gap: 4px;
   }
   .star-rating input {
@@ -277,6 +273,7 @@
   }
   .star-rating label {
     cursor: pointer;
+    font-size: 24px;
     color: #fff;
   }
   .star-rating label:before {
@@ -284,9 +281,8 @@
     font-weight: 900;
     content: "\f005";
   }
-  .star-rating input:checked ~ label,
-  .star-rating label:hover,
-  .star-rating label:hover ~ label {
+  .star-rating input:checked + label,
+  .star-rating label:hover {
     color: #d1495b;
   }
   .svd-score {

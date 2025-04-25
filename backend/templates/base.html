@@ -213,8 +213,12 @@
       clearResults();
       if (firstSearch) {
         const initialRating = document.querySelector('input[name="rating-filter"]:checked').value;
-        const copy = document.querySelector(`input[name="rating-filter-2"][value="${initialRating}"]`);
-        if (copy) copy.checked = true;
+        const copyRating = document.querySelector(`input[name="rating-filter-2"][value="${initialRating}"]`);
+        if (copyRating) copyRating.checked = true;
+        document.querySelectorAll('input[name="allergy"]').forEach(cb => {
+          const copyAllergy = document.querySelector(`input[name="allergy-2"][value="${cb.value}"]`);
+          if (copyAllergy) copyAllergy.checked = cb.checked;
+        });
         document.body.classList.replace('initial-mode','results-mode');
         firstSearch = false;
       }

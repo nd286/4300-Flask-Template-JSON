@@ -157,6 +157,9 @@
   .filters-sidebar h2 {
     margin-bottom: 10px;
   }
+  .filters-sidebar .filter-item:first-child .star-rating {
+    margin-bottom: 20px;
+  }
   .checkbox-group label {
     display: block;
     margin-bottom: 5px;
@@ -269,7 +272,7 @@
   }
   .star-rating label {
     cursor: pointer;
-    color: #ccc;
+    color: #fff;
     position: relative;
   }
   .star-rating label:before {
@@ -289,7 +292,7 @@
   .star-rating input:checked ~ label,
   .star-rating label:hover,
   .star-rating label:hover ~ label {
-    color: #ffc107;
+    color: #d1495b;
   }
   .svd-score {
     font-size: 14px;

@@ -1,4 +1,4 @@
-/* style.css */
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -13,22 +13,6 @@ body {
 button {
     border-radius: 12px;
     width: fit-content;
-}
-
-#rating-filter {
-    border-radius: 12px;
-    border: none;
-    padding: 8px;
-    cursor: pointer;
-}
-
-#rating-filter-2 {
-    cursor: pointer;
-    border: none;
-    border-radius: 8px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    margin-top: 8px;
 }
 
 #allergy-toggle {
@@ -349,59 +333,50 @@ body.results-mode .search-bar {
     flex-direction: column;
     align-items: center;
     text-align: center;
-  }
+}
   
-  .modal-content canvas {
+.modal-content canvas {
     display: block;
     margin: 1em auto;
     width: 500px !important;
     height: 500px !important;
     max-width: 500px !important;
     max-height: 500px !important;
-  }
+}
 
-  .result-details p {
+.result-details p {
     margin-bottom: 0.25em;
-  }
-  
+}
+
 .star-rating {
-    display: inline-block;
-    position: relative;
-    font-size: 24px;
-    width: 120px;   /* 5 stars × 24px */
-    height: 24px;
-    cursor: pointer;
-    user-select: none;
-  }
-  .star-rating .star-bg,
-  .star-rating .star-fg {
-    position: absolute;
-    top: 0; left: 0;
-    white-space: nowrap;
-  }
-  .star-rating .star-bg {
-    color: #ccc;
-  }
-  .star-rating .star-fg {
-    color: #fc0;
-    overflow: hidden;
-  }
-  .star-rating .star-bg::before,
-  .star-rating .star-fg::before {
-    content: '★★★★★';
-  }
-  
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .score {
-    font-size: 14px;
-    font-weight: 600;
-    background: #fff;
-    padding: 2px 6px;
-    border-radius: 4px;
-    color: #3D3D3D;
-  }
-  
+  display: inline-block;
+  position: relative;
+  font-size: 24px;
+  width: 120px;
+  height: 24px;
+  cursor: pointer;
+  user-select: none;
+}
+.star-rating .star-bg,
+.star-rating .star-fg {
+  position: absolute;
+  top: 0; left: 0;
+  white-space: nowrap;
+}
+.star-rating .star-bg::before { content: '★★★★★'; color: #ccc; }
+.star-rating .star-fg::before { content: '★★★★★'; color: #fc0; }
+.star-rating .star-fg { overflow: hidden; width: 0; }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.score {
+  font-size: 14px;
+  font-weight: 600;
+  background: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #333;
+}

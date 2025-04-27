@@ -86,6 +86,14 @@
     </div>
   </div>
 
+  <div id="reviews-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeReviews()">&times;</span>
+      <h3 style="text-align:center;margin-bottom:1em;">Past Reviews</h3>
+      <div id="reviews-content"></div>
+    </div>
+  </div>
+
   <script>
     const brandUrls = {
       "Ben and Jerry's": "https://www.benjerry.com/",
@@ -94,6 +102,8 @@
       "Breyers": "https://www.breyers.com/us/en/home.html"
     };
     let firstSearch = true;
+    const explanationMap = {};
+    const reviewsMap = {};
     document.getElementById('allergy-toggle').addEventListener('click', () =>
       document.querySelector('.dropdown-content').classList.toggle('show')
     );
@@ -131,10 +141,10 @@
           <p><strong>Rating:</strong> ${rating}</p>
           <button class="popup-button" onclick="openPopup('${id}')">More information</button>
           <a href="${brandUrls[brand]}" target="_blank" class="popup-button">Visit site</a>
+          <button class="popup-button" onclick="openReviews('${id}')">Past reviews</button>
         </div>
       </div>`;
     }
-    const explanationMap = {};
     function openPopup(id) {
       const content = explanationMap[id];
       if (!content) return;
@@ -196,6 +206,15 @@
     function closePopup() {
       document.getElementById('popup-modal').style.display = 'none';
     }
+    function openReviews(id) {
+      const revs = reviewsMap[id] || '';
+      const html = revs.split('\n').map(r => `<p>${r}</p>`).join('');
+      document.getElementById('reviews-content').innerHTML = html;
+      document.getElementById('reviews-modal').style.display = 'flex';
+    }
+    function closeReviews() {
+      document.getElementById('reviews-modal').style.display = 'none';
+    }
     function fetchFlavors() {
       const query = document.getElementById("search-input").value.trim();
       const inResultsMode = document.body.classList.contains('results-mode');
@@ -234,6 +253,7 @@
           document.getElementById("results-title").style.display = "block";
           data.forEach(r => {
             explanationMap[r.safeId] = r.explanation;
+            reviewsMap[r.safeId] = r.reviews;
             box.insertAdjacentHTML('beforeend',
               answerBoxTemplate(
                 r.safeId,
@@ -260,3 +280,4 @@
   </script>
 </body>
 </html>
+

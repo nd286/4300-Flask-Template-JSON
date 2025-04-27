@@ -218,13 +218,10 @@
       const revs = reviewsMap[id] || [];
       let html = "";
       revs.forEach(r => {
-        html += `
-          <p style="margin-bottom:1em;">
-            <strong>${r.author}:</strong> ${r.text}
-          </p>`;
+        html += `<p style="margin-bottom:1em;"><strong>${r.author}:</strong> ${r.text}</p>`;
       });
-      document.getElementById('reviews-content').innerHTML = html;
-      document.getElementById('reviews-modal').style.display = 'flex';
+      document.getElementById("reviews-content").innerHTML = html;
+      document.getElementById("reviews-modal").style.display = "flex";
     }
 
     function closeReviews() {

@@ -109,7 +109,7 @@ def json_search(query, min_rating=0, allergy_list=[]):
 
 @app.route("/")
 def home():
-    return render_template("base.html", popup_text="this is a popup")
+    return render_template("base.html")
 
 @app.route("/flavors")
 def flavors_search():

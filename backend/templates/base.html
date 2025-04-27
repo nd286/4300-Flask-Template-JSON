@@ -104,6 +104,7 @@
     let firstSearch = true;
     const explanationMap = {};
     const reviewsMap = {};
+
     document.getElementById('allergy-toggle').addEventListener('click', () =>
       document.querySelector('.dropdown-content').classList.toggle('show')
     );
@@ -112,14 +113,17 @@
         document.querySelector('.dropdown-content').classList.remove('show');
       }
     });
+
     function clearResults() {
       document.getElementById("answer-box").innerHTML = "";
       document.getElementById("results-title").style.display = "none";
     }
+
     function toggleDetails(id) {
       const el = document.getElementById(id);
       el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
+
     function capitalizeIngredients(ingredients) {
       return ingredients
         .toLowerCase()
@@ -128,6 +132,7 @@
         .map(i => i.charAt(0).toUpperCase() + i.slice(1))
         .join(', ');
     }
+
     function answerBoxTemplate(id, brand, title, desc, ing, rating, score) {
       return `
       <div class="result">
@@ -145,6 +150,7 @@
         </div>
       </div>`;
     }
+
     function openPopup(id) {
       const content = explanationMap[id];
       if (!content) return;
@@ -203,18 +209,28 @@
         });
       });
     }
+
     function closePopup() {
       document.getElementById('popup-modal').style.display = 'none';
     }
+
     function openReviews(id) {
-      const revs = reviewsMap[id] || '';
-      const html = revs.split('\n').map(r => `<p>${r}</p>`).join('');
+      const revs = reviewsMap[id] || [];
+      let html = "";
+      revs.forEach(r => {
+        html += `
+          <p style="margin-bottom:1em;">
+            <strong>${r.author}:</strong> ${r.text}
+          </p>`;
+      });
       document.getElementById('reviews-content').innerHTML = html;
       document.getElementById('reviews-modal').style.display = 'flex';
     }
+
     function closeReviews() {
       document.getElementById('reviews-modal').style.display = 'none';
     }
+
     function fetchFlavors() {
       const query = document.getElementById("search-input").value.trim();
       const inResultsMode = document.body.classList.contains('results-mode');
@@ -250,7 +266,7 @@
       .then(data => {
         const box = document.getElementById("answer-box");
         if (data.length) {
-          document.getElementById("results-title").style.display = "block";
+         document.getElementById("results-title").style.display = "block";
           data.forEach(r => {
             explanationMap[r.safeId] = r.explanation;
             reviewsMap[r.safeId] = r.reviews;
@@ -271,6 +287,7 @@
         }
       });
     }
+
     document.getElementById('search-input').addEventListener('input', clearResults);
     document.querySelectorAll('input[name="rating-filter"]').forEach(r => r.addEventListener('change', clearResults));
     document.querySelectorAll('input[name="rating-filter-2"]').forEach(r => r.addEventListener('change', clearResults));
@@ -280,4 +297,3 @@
   </script>
 </body>
 </html>
-

@@ -1,7 +1,7 @@
 import json
 import os
 import numpy as np
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 import pandas as pd
 from svd_similarity import build_composite_svd_models, query_composite_svd_similarity, CUSTOM_STOPWORDS
@@ -121,6 +121,49 @@ def flavors_search():
     mr = float(request.args.get("min_rating", 0))
     al = [a.strip().lower() for a in request.args.get("allergies", "").split(",") if a]
     return json_search(q, mr, al)
+
+@app.route("/add_review", methods=["POST"])
+def add_review():
+    payload = request.get_json()
+    safe_id = payload["safeId"]
+    title   = payload["title"]
+    author  = payload["author"]
+    text    = payload["text"]
+
+    with open(json_file_path, "r+") as f:
+        data = json.load(f)
+        flavors = data.setdefault("flavors", [])
+        template = next((fl for fl in flavors if fl.get("title","") == title), None)
+        if not template:
+            return jsonify({"status": "error"}), 400
+        new_number = max((fl.get("number", 0) for fl in flavors), default=0) + 1
+        new_entry = {
+            "number": new_number,
+            "brand": template["brand"],
+            "key": template["key"],
+            "author": author,
+            "stars": 0,
+            "helpful_yes": 0,
+            "helpful_no": 0,
+            "text": text,
+            "title": template["title"],
+            "subhead": template["subhead"],
+            "description": template["description"],
+            "rating": template["rating"],
+            "rating_count": template["rating_count"],
+            "ingredients_y": template["ingredients_y"]
+        }
+        flavors.append(new_entry)
+        f.seek(0)
+        json.dump(data, f, indent=2)
+        f.truncate()
+
+    entry = unique_flavors.get(title)
+    if entry:
+        entry["reviews_list"].append(f"{author}: {text}")
+        entry["text"] += " " + text
+
+    return jsonify({"status": "success"})
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)

@@ -90,6 +90,19 @@
       <div id="reviews-content"></div>
     </div>
   </div>
+  <div id="add-review-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeAddReviewPopup()">&times;</span>
+      <h3 style="text-align:center;margin-bottom:1em;">Add a Review</h3>
+      <div style="text-align:left;">
+        <label>Your name:</label>
+        <input type="text" id="new-review-author" style="width:100%;margin-bottom:1em;">
+        <label>Your review:</label>
+        <textarea id="new-review-text" style="width:100%;height:100px;margin-bottom:1em;"></textarea>
+        <button id="submit-review" class="popup-button">Submit</button>
+      </div>
+    </div>
+  </div>
   <script>
     const brandUrls = {
       "Ben and Jerry's": "https://www.benjerry.com/",
@@ -98,6 +111,8 @@
       "Breyers": "https://www.breyers.com/us/en/home.html"
     };
     let firstSearch = true;
+    let currentAddId = null;
+    let currentAddTitle = null;
     const explanationMap = {};
     const reviewsMap = {};
     document.getElementById('allergy-toggle').addEventListener('click', () =>
@@ -138,6 +153,7 @@
           <button class="popup-button" onclick="openPopup('${id}')">More information</button>
           <a href="${brandUrls[brand]}" target="_blank" class="popup-button">Visit site</a>
           <button class="popup-button" onclick="openReviewsPopup('${id}')">Past reviews</button>
+          <button class="popup-button" onclick="openAddReviewPopup('${id}','${title}')">Add a Review</button>
         </div>
       </div>`;
     }
@@ -218,6 +234,36 @@
     function closeReviewsPopup() {
       document.getElementById('reviews-modal').style.display = 'none';
     }
+    function openAddReviewPopup(id, title) {
+      currentAddId = id;
+      currentAddTitle = title;
+      document.getElementById('new-review-author').value = '';
+      document.getElementById('new-review-text').value = '';
+      document.getElementById('add-review-modal').style.display = 'flex';
+    }
+    function closeAddReviewPopup() {
+      document.getElementById('add-review-modal').style.display = 'none';
+    }
+    document.getElementById('submit-review').addEventListener('click', () => {
+      const author = document.getElementById('new-review-author').value.trim();
+      const text = document.getElementById('new-review-text').value.trim();
+      if (!author || !text) return alert('Please fill both fields.');
+      fetch('/add_review', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ safeId: currentAddId, title: currentAddTitle, author, text })
+      })
+      .then(r => r.json())
+      .then(resp => {
+        if (resp.status === 'success') {
+          reviewsMap[currentAddId].push(`${author}: ${text}`);
+          closeAddReviewPopup();
+          openReviewsPopup(currentAddId);
+        } else {
+          alert('Error adding review.');
+        }
+      });
+    });
     function fetchFlavors() {
       const query = document.getElementById("search-input").value.trim();
       const inResultsMode = document.body.classList.contains('results-mode');

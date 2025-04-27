@@ -266,7 +266,7 @@
       .then(data => {
         const box = document.getElementById("answer-box");
         if (data.length) {
-         document.getElementById("results-title").style.display = "block";
+          document.getElementById("results-title").style.display = "block";
           data.forEach(r => {
             explanationMap[r.safeId] = r.explanation;
             reviewsMap[r.safeId] = r.reviews;

@@ -303,9 +303,31 @@
     margin-bottom: 8px;
     color: #3D3D3D;
   }
-  #reviews-content .review-row:nth-child(5n+1) { background: #f5cbc3; }
-  #reviews-content .review-row:nth-child(5n+2) { background: #f7a9a8; }
-  #reviews-content .review-row:nth-child(5n+3) { background: #fde8ec; }
-  #reviews-content .review-row:nth-child(5n+4) { background: #E4C3A4; }
-  #reviews-content .review-row:nth-child(5n+5) { background: #A8B9D4; }
+  #reviews-content .review-row:nth-child(9n+1) {
+    background: #F3E5F5;
+  }
+  #reviews-content .review-row:nth-child(9n+2) {
+    background: #E1BEE7;
+  }
+  #reviews-content .review-row:nth-child(9n+3) {
+    background: #CE93D8;
+  }
+  #reviews-content .review-row:nth-child(9n+4) {
+    background: #E3F2FD;
+  }
+  #reviews-content .review-row:nth-child(9n+5) {
+    background: #BBDEFB;
+  }
+  #reviews-content .review-row:nth-child(9n+6) {
+    background: #90CAF9;
+  }
+  #reviews-content .review-row:nth-child(9n+7) {
+    background: #FCE4EC;
+  }
+  #reviews-content .review-row:nth-child(9n+8) {
+    background: #F8BBD0;
+  }
+  #reviews-content .review-row:nth-child(9n+9) {
+    background: #F48FB1;
+  }
   

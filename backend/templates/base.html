@@ -88,8 +88,8 @@
 
   <div id="reviews-modal" class="modal">
     <div class="modal-content">
-      <span class="close" onclick="closeReviews()">&times;</span>
-      <h3 style="text-align:center;margin-bottom:1em;">Past Reviews</h3>
+      <span class="close" onclick="closeReviewsPopup()">&times;</span>
+      <h3 style="text-align:center;margin-bottom:1em;">Past reviews</h3>
       <div id="reviews-content"></div>
     </div>
   </div>
@@ -104,7 +104,6 @@
     let firstSearch = true;
     const explanationMap = {};
     const reviewsMap = {};
-
     document.getElementById('allergy-toggle').addEventListener('click', () =>
       document.querySelector('.dropdown-content').classList.toggle('show')
     );
@@ -113,17 +112,14 @@
         document.querySelector('.dropdown-content').classList.remove('show');
       }
     });
-
     function clearResults() {
       document.getElementById("answer-box").innerHTML = "";
       document.getElementById("results-title").style.display = "none";
     }
-
     function toggleDetails(id) {
       const el = document.getElementById(id);
       el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
-
     function capitalizeIngredients(ingredients) {
       return ingredients
         .toLowerCase()
@@ -132,7 +128,6 @@
         .map(i => i.charAt(0).toUpperCase() + i.slice(1))
         .join(', ');
     }
-
     function answerBoxTemplate(id, brand, title, desc, ing, rating, score) {
       return `
       <div class="result">
@@ -146,11 +141,10 @@
           <p><strong>Rating:</strong> ${rating}</p>
           <button class="popup-button" onclick="openPopup('${id}')">More information</button>
           <a href="${brandUrls[brand]}" target="_blank" class="popup-button">Visit site</a>
-          <button class="popup-button" onclick="openReviews('${id}')">Past reviews</button>
+          <button class="popup-button" onclick="openReviewsPopup('${id}')">Past reviews</button>
         </div>
       </div>`;
     }
-
     function openPopup(id) {
       const content = explanationMap[id];
       if (!content) return;
@@ -209,25 +203,19 @@
         });
       });
     }
-
     function closePopup() {
       document.getElementById('popup-modal').style.display = 'none';
     }
-
-    function openReviews(id) {
-      const revs = reviewsMap[id] || [];
-      let html = "";
-      revs.forEach(r => {
-        html += `<p style="margin-bottom:1em;"><strong>${r.author}:</strong> ${r.text}</p>`;
-      });
+    function openReviewsPopup(id) {
+      const reviews = reviewsMap[id];
+      if (!reviews) return;
+      const html = reviews.map(r => `<p>${r}</p>`).join('');
       document.getElementById("reviews-content").innerHTML = html;
       document.getElementById("reviews-modal").style.display = "flex";
     }
-
-    function closeReviews() {
+    function closeReviewsPopup() {
       document.getElementById('reviews-modal').style.display = 'none';
     }
-
     function fetchFlavors() {
       const query = document.getElementById("search-input").value.trim();
       const inResultsMode = document.body.classList.contains('results-mode');
@@ -284,7 +272,6 @@
         }
       });
     }
-
     document.getElementById('search-input').addEventListener('input', clearResults);
     document.querySelectorAll('input[name="rating-filter"]').forEach(r => r.addEventListener('change', clearResults));
     document.querySelectorAll('input[name="rating-filter-2"]').forEach(r => r.addEventListener('change', clearResults));

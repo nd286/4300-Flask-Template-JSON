@@ -293,4 +293,19 @@
     color: #333;
     align-self: center;
   }
+  #reviews-content {
+    text-align: left;
+    width: 100%;
+  }
+  .review-row {
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    color: #3D3D3D;
+  }
+  #reviews-content .review-row:nth-child(5n+1) { background: #f5cbc3; }
+  #reviews-content .review-row:nth-child(5n+2) { background: #f7a9a8; }
+  #reviews-content .review-row:nth-child(5n+3) { background: #fde8ec; }
+  #reviews-content .review-row:nth-child(5n+4) { background: #E4C3A4; }
+  #reviews-content .review-row:nth-child(5n+5) { background: #A8B9D4; }
   

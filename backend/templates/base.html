@@ -221,11 +221,14 @@
     function openReviewsPopup(id) {
       const reviews = reviewsMap[id];
       if (!reviews) return;
-      let html = '<div style="text-align:left;">';
+      let html = '<div id="reviews-content">';
       reviews.forEach((item, index) => {
         const [author, ...rest] = item.split(': ');
         const text = rest.join(': ');
-        html += `<p style="margin-bottom:1em;"><strong>${index + 1}. ${author}</strong>: "${text}"</p>`;
+        html += `
+        <div class="review-row">
+          <strong>${index + 1}. ${author}</strong>: "${text}"
+        </div>`;
       });
       html += '</div>';
       document.getElementById("reviews-content").innerHTML = html;

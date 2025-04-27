@@ -79,14 +79,14 @@
   <div id="popup-modal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closePopup()">&times;</span>
-      <h3 style="text-align:center;margin-bottom:1em;">More information about recommendation</h3>
+      <h3 style="text-align:center;margin-bottom:1em;">More Information About Recommendation</h3>
       <div id="popup-content"></div>
     </div>
   </div>
   <div id="reviews-modal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeReviewsPopup()">&times;</span>
-      <h3 style="text-align:center;margin-bottom:1em;">Past reviews</h3>
+      <h3 style="text-align:center;margin-bottom:1em;">Past Reviews</h3>
       <div id="reviews-content"></div>
     </div>
   </div>
@@ -150,9 +150,9 @@
           <p><strong>Description:</strong> ${desc}</p>
           <p><strong>Ingredients:</strong> ${capitalizeIngredients(ing)}</p>
           <p><strong>Rating:</strong> ${rating}</p>
-          <button class="popup-button" onclick="openPopup('${id}')">More information</button>
+          <button class="popup-button" onclick="openPopup('${id}')">More Information About Recommendation</button>
           <a href="${brandUrls[brand]}" target="_blank" class="popup-button">Visit site</a>
-          <button class="popup-button" onclick="openReviewsPopup('${id}')">Past reviews</button>
+          <button class="popup-button" onclick="openReviewsPopup('${id}')">Past Reviews</button>
           <button class="popup-button" onclick="openAddReviewPopup('${id}','${title}')">Add a Review</button>
         </div>
       </div>`;

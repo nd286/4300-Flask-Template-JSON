@@ -301,33 +301,7 @@
     padding: 12px;
     border-radius: 6px;
     margin-bottom: 8px;
+    background: linear-gradient(to right, #F3E5F5, #E3F2FD, #FCE4EC);
     color: #3D3D3D;
-  }
-  #reviews-content .review-row:nth-child(9n+1) {
-    background: #F3E5F5;
-  }
-  #reviews-content .review-row:nth-child(9n+2) {
-    background: #E1BEE7;
-  }
-  #reviews-content .review-row:nth-child(9n+3) {
-    background: #CE93D8;
-  }
-  #reviews-content .review-row:nth-child(9n+4) {
-    background: #E3F2FD;
-  }
-  #reviews-content .review-row:nth-child(9n+5) {
-    background: #BBDEFB;
-  }
-  #reviews-content .review-row:nth-child(9n+6) {
-    background: #90CAF9;
-  }
-  #reviews-content .review-row:nth-child(9n+7) {
-    background: #FCE4EC;
-  }
-  #reviews-content .review-row:nth-child(9n+8) {
-    background: #F8BBD0;
-  }
-  #reviews-content .review-row:nth-child(9n+9) {
-    background: #F48FB1;
   }
   

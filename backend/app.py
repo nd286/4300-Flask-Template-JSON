@@ -28,10 +28,9 @@ for doc in docs:
             "subhead": doc.get("subhead", ""),
             "ingredients_y": doc.get("ingredients_y", ""),
             "rating": doc.get("rating", 0),
-            "reviews": [{"author": author, "text": text}]
+            "reviews": []
         }
-    else:
-        unique_flavors[t]["reviews"].append({"author": author, "text": text})
+    unique_flavors[t]["reviews"].append({"author": author, "text": text})
 
 flavor_list = list(unique_flavors.values())
 models = build_composite_svd_models(flavor_list, n_components=300)

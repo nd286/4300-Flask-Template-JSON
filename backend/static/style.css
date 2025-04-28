@@ -44,6 +44,10 @@
     justify-content: space-between;
     align-items: center;
   }
+  .logo-image,
+  .main-title {
+    cursor: pointer;
+  }
   .logo-image {
     display: block;
     margin: 0 auto 16px;
@@ -62,6 +66,7 @@
     width: 48px;
     margin-left: 8px;
     vertical-align: middle;
+    cursor: pointer;
   }
   .title-container {
     display: inline-flex;
@@ -157,6 +162,8 @@
     padding: 15px;
     border-radius: 8px;
     margin-right: 20px;
+    display: flex;
+    flex-direction: column;
   }
   .filters-sidebar h2 {
     margin-bottom: 10px;
@@ -305,8 +312,13 @@
     background: linear-gradient(to right, #e2c0e9, #b1d2ea, #efb8ca);
     color: #3D3D3D;
   }
-  .filters-sidebar .wishlist-section {
+  .filters-sidebar .wishlist-container {
+    background: #f1b0b0;
+    padding: 12px;
+    border-radius: 8px;
     margin-top: 20px;
+    flex: 1;
+    overflow-y: auto;
   }
   .filters-sidebar .wishlist-section h2 {
     margin-bottom: 4px;
@@ -326,16 +338,17 @@
     justify-content: space-between;
     align-items: center;
     padding: 6px 8px;
-    background: white;
+    background: #e07b7b;
     margin-bottom: 6px;
     border-radius: 4px;
     font-size: 14px;
+    color: #3D3D3D;
   }
   .heart-icon {
     cursor: pointer;
     font-size: 18px;
     margin-left: 8px;
-    color: #c0c0c0;
+    color: #fff;
   }
   .heart-icon.favorited {
     color: #d1495b;

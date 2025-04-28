@@ -13,10 +13,10 @@
 </head>
 <body class="initial-mode">
   <header class="header-container">
-    <img src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Logo" class="logo-image">
+    <img id="home-logo" title="Go back" src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Logo" class="logo-image">
     <div class="title-container">
-      <h1 class="main-title">Dairy Godmothers</h1>
-      <img src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Logo small" class="logo-small">
+      <h1 id="home-title" title="Go back" class="main-title">Dairy Godmothers</h1>
+      <img id="home-logo-small" title="Go back" src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Logo small" class="logo-small">
     </div>
     <div class="search-bar">
       <input id="search-input" placeholder="Search for an Ice Cream Flavor">
@@ -71,10 +71,12 @@
           <label><input type="checkbox" name="allergy-2" value="eggs"> Eggs</label>
         </div>
       </div>
-      <div class="wishlist-section">
-        <h2>Wish List</h2>
-        <p>Making Your Dairy Wishes Come True</p>
-        <ul id="wishlist" class="wishlist-list"></ul>
+      <div class="wishlist-container">
+        <div class="wishlist-section">
+          <h2>Wish List</h2>
+          <p>Making Your Dairy Wishes Come True</p>
+          <ul id="wishlist" class="wishlist-list"></ul>
+        </div>
       </div>
     </aside>
     <main class="results-section">
@@ -152,10 +154,7 @@
           <h3>${brand} ${title} <span class="toggle-icon">🍨</span></h3>
           <div class="svd-score">
             <span>svd score: ${score.toFixed(2)}</span>
-            <i class="heart-icon fa-regular fa-heart"
-               data-id="${id}"
-               data-brand="${brand}"
-               data-title="${title}"></i>
+            <i class="heart-icon fa-regular fa-heart" data-id="${id}" data-brand="${brand}" data-title="${title}"></i>
           </div>
         </div>
         <div class="result-details" id="details-${id}" style="display:none;">
@@ -365,6 +364,13 @@
         toggleWishlist(el.dataset.id, el.dataset.brand, el.dataset.title);
       }
     });
+
+    function goHome() {
+      window.location.reload();
+    }
+    document.getElementById('home-logo').addEventListener('click', goHome);
+    document.getElementById('home-logo-small').addEventListener('click', goHome);
+    document.getElementById('home-title').addEventListener('click', goHome);
   </script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+/* static/style.css */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -303,5 +304,43 @@
     margin-bottom: 8px;
     background: linear-gradient(to right, #e2c0e9, #b1d2ea, #efb8ca);
     color: #3D3D3D;
+  }
+  .filters-sidebar .wishlist-section {
+    margin-top: 20px;
+  }
+  .filters-sidebar .wishlist-section h2 {
+    margin-bottom: 4px;
+  }
+  .filters-sidebar .wishlist-section p {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-style: italic;
+  }
+  .filters-sidebar .wishlist-list {
+    list-style: none;
+    padding: 0;
+  }
+  .filters-sidebar .wishlist-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    background: white;
+    margin-bottom: 6px;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .heart-icon {
+    cursor: pointer;
+    font-size: 18px;
+    margin-left: 8px;
+    color: #c0c0c0;
+  }
+  .heart-icon.favorited {
+    color: #d1495b;
+  }
+  .remove-icon {
+    cursor: pointer;
   }
   

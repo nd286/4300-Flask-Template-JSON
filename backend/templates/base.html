@@ -1,3 +1,4 @@
+<!-- templates/base.html -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -69,6 +70,11 @@
           <label><input type="checkbox" name="allergy-2" value="soy"> Soy</label>
           <label><input type="checkbox" name="allergy-2" value="eggs"> Eggs</label>
         </div>
+      </div>
+      <div class="wishlist-section">
+        <h2>Wish List</h2>
+        <p>Making Your Dairy Wishes Come True</p>
+        <ul id="wishlist" class="wishlist-list"></ul>
       </div>
     </aside>
     <main class="results-section">
@@ -144,7 +150,13 @@
       <div class="result">
         <div class="result-header" onclick="toggleDetails('details-${id}')">
           <h3>${brand} ${title} <span class="toggle-icon">🍨</span></h3>
-          <div class="svd-score">svd score: ${score.toFixed(2)}</div>
+          <div class="svd-score">
+            <span>svd score: ${score.toFixed(2)}</span>
+            <i class="heart-icon fa-regular fa-heart"
+               data-id="${id}"
+               data-brand="${brand}"
+               data-title="${title}"></i>
+          </div>
         </div>
         <div class="result-details" id="details-${id}" style="display:none;">
           <p><strong>Description:</strong> ${desc}</p>
@@ -166,17 +178,13 @@
         Instead, we use latent dimensions — hidden themes our system has learned
         from patterns across all descriptions, subhead, ingredients, and reviews.
       </p>
-      <p style="margin-bottom:2em;">
-        Below you see each theme plotted with how strongly it matched your query.
-      </p>
-      <hr style="margin-bottom:2em;" />`;
+      <p style="margin-bottom:2em;">Below you see each theme plotted with how strongly it matched your query.</p>
+      <hr style="margin-bottom:2em;">`;
       Object.entries(content).forEach(([field, data]) => {
         const title = field.charAt(0).toUpperCase() + field.slice(1);
         html += `
         <h4 style="margin-top:1.5em;">${title}</h4>
-        <p style="font-style:italic;margin-bottom:0.5em;">
-          Themes: ${data.themes.join(', ')}
-        </p>
+        <p style="font-style:italic;margin-bottom:0.5em;">Themes: ${data.themes.join(', ')}</p>
         <canvas id="chart-${id}-${field}" width="300" height="300" style="max-width:100%;"></canvas>`;
       });
       document.getElementById("popup-content").innerHTML = html;
@@ -329,6 +337,34 @@
     document.querySelectorAll('input[name="allergy"]').forEach(cb => cb.addEventListener('change', clearResults));
     document.querySelectorAll('input[name="allergy-2"]').forEach(cb => cb.addEventListener('change', clearResults));
     document.getElementById('search-button').addEventListener('click', fetchFlavors);
+
+    function toggleWishlist(id, brand, title) {
+      const heartEl = document.querySelector(`.heart-icon[data-id="${id}"]`);
+      const wishListContainer = document.getElementById('wishlist');
+      const existingItem = document.getElementById(`wl-item-${id}`);
+      if (!existingItem) {
+        heartEl.classList.remove('fa-regular');
+        heartEl.classList.add('fa-solid', 'favorited');
+        const li = document.createElement('li');
+        li.id = `wl-item-${id}`;
+        li.innerHTML = `
+          <span>${brand} ${title}</span>
+          <i class="fa-solid fa-xmark remove-icon" onclick="toggleWishlist('${id}')"></i>
+        `;
+        wishListContainer.appendChild(li);
+      } else {
+        heartEl.classList.remove('fa-solid', 'favorited');
+        heartEl.classList.add('fa-regular');
+        existingItem.remove();
+      }
+    }
+
+    document.getElementById('answer-box').addEventListener('click', function(e) {
+      if (e.target.classList.contains('heart-icon')) {
+        const el = e.target;
+        toggleWishlist(el.dataset.id, el.dataset.brand, el.dataset.title);
+      }
+    });
   </script>
 </body>
 </html>

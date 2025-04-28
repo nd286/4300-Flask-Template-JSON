@@ -157,7 +157,7 @@
   }
   .filters-sidebar {
     width: 240px;
-    background: #f7d8aa;
+    background: #e8ca9d;
     padding: 15px;
     border-radius: 8px;
     margin-right: 20px;
@@ -350,7 +350,7 @@
     color: #ff69b4;
   }
   .heart-icon.favorited {
-    color: #ff69b4;
+    color: #ff69b4 !important;
   }
   .remove-icon {
     cursor: pointer;

@@ -337,7 +337,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 6px 8px;
-    background: #E0BBE4;
+    background: #f4d3f8;
     margin-bottom: 6px;
     border-radius: 4px;
     font-size: 14px;
@@ -347,7 +347,7 @@
     cursor: pointer;
     font-size: 18px;
     margin-left: 8px;
-    color: #fff;
+    color: #ff69b4;
   }
   .heart-icon.favorited {
     color: #ff69b4;

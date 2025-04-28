@@ -158,7 +158,7 @@
   }
   .filters-sidebar {
     width: 240px;
-    background: #E4C3A4;
+    background: #DEBE75; /* new yellow */
     padding: 15px;
     border-radius: 8px;
     margin-right: 20px;
@@ -313,7 +313,7 @@
     color: #3D3D3D;
   }
   .filters-sidebar .wishlist-container {
-    background: #f9e0b3;
+    background: #A6C7BF;
     padding: 12px;
     border-radius: 8px;
     margin-top: 20px;
@@ -338,7 +338,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 6px 8px;
-    background: #A6C7BF;
+    background: linear-gradient(to right, #e2c0e9, #b1d2ea, #efb8ca);
     margin-bottom: 6px;
     border-radius: 4px;
     font-size: 14px;
@@ -355,5 +355,28 @@
   }
   .remove-icon {
     cursor: pointer;
+  }
+  /* tooltip styling for "Go back" */
+  [data-tooltip] {
+    position: relative;
+  }
+  [data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -2.5em;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 16px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease-in-out;
+  }
+  [data-tooltip]:hover::after {
+    opacity: 1;
   }
   

@@ -1,4 +1,3 @@
-<!-- templates/base.html -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -13,10 +12,10 @@
 </head>
 <body class="initial-mode">
   <header class="header-container">
-    <img id="home-logo" title="Go back" src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Logo" class="logo-image">
+    <img id="home-logo" data-tooltip="Go back" src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Logo" class="logo-image">
     <div class="title-container">
-      <h1 id="home-title" title="Go back" class="main-title">Dairy Godmothers</h1>
-      <img id="home-logo-small" title="Go back" src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Logo small" class="logo-small">
+      <h1 id="home-title" data-tooltip="Go back" class="main-title">Dairy Godmothers</h1>
+      <img id="home-logo-small" data-tooltip="Go back" src="{{ url_for('static', filename='images/Godmother.png') }}" alt="Logo small" class="logo-small">
     </div>
     <div class="search-bar">
       <input id="search-input" placeholder="Search for an Ice Cream Flavor">
@@ -87,26 +86,26 @@
   <div id="popup-modal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closePopup()">&times;</span>
-      <h3 style="text-align:center;margin-bottom:1em;">More Information About Recommendation</h3>
+      <h3>More Information About Recommendation</h3>
       <div id="popup-content"></div>
     </div>
   </div>
   <div id="reviews-modal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeReviewsPopup()">&times;</span>
-      <h3 style="text-align:center;margin-bottom:1em;">Past Reviews</h3>
+      <h3>Past Reviews</h3>
       <div id="reviews-content"></div>
     </div>
   </div>
   <div id="add-review-modal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeAddReviewPopup()">&times;</span>
-      <h3 style="text-align:center;margin-bottom:1em;">Add a Review</h3>
-      <div style="text-align:left;">
+      <h3>Add a Review</h3>
+      <div>
         <label>Your name:</label>
-        <input type="text" id="new-review-author" style="width:100%;margin-bottom:1em;">
+        <input type="text" id="new-review-author">
         <label>Your review:</label>
-        <textarea id="new-review-text" style="width:100%;height:100px;margin-bottom:1em;"></textarea>
+        <textarea id="new-review-text"></textarea>
         <button id="submit-review" class="popup-button">Submit</button>
       </div>
     </div>
@@ -151,7 +150,7 @@
       return `
       <div class="result">
         <div class="result-header" onclick="toggleDetails('details-${id}')">
-          <h3>${brand} ${title} <span class="toggle-icon">🍨</span></h3>
+          <h3>${brand} ${title}</h3>
           <div class="svd-score">
             <span>svd score: ${score.toFixed(2)}</span>
             <i class="heart-icon fa-regular fa-heart" data-id="${id}" data-brand="${brand}" data-title="${title}"></i>
@@ -161,216 +160,114 @@
           <p><strong>Description:</strong> ${desc}</p>
           <p><strong>Ingredients:</strong> ${capitalizeIngredients(ing)}</p>
           <p><strong>Rating:</strong> ${rating}</p>
-          <button class="popup-button" onclick="openPopup('${id}')">More Information About Recommendation</button>
-          <a href="${brandUrls[brand]}" target="_blank" class="popup-button">Visit site</a>
-          <button class="popup-button" onclick="openReviewsPopup('${id}')">Past Reviews</button>
-          <button class="popup-button" onclick="openAddReviewPopup('${id}','${title}')">Add a Review</button>
+          <button class="popup-button" onclick="openPopup('${id}')">More Info</button>
+          <a href="${brandUrls[brand]}" target="_blank" class="popup-button">Visit Site</a>
+          <button class="popup-button" onclick="openReviewsPopup('${id}')">Reviews</button>
+          <button class="popup-button" onclick="openAddReviewPopup('${id}','${title}')">Add Review</button>
         </div>
       </div>`;
     }
     function openPopup(id) {
       const content = explanationMap[id];
       if (!content) return;
-      let html = `
-      <p style="margin-bottom:1em;">
-        When you search for a flavor, we don’t just match words directly.
-        Instead, we use latent dimensions — hidden themes our system has learned
-        from patterns across all descriptions, subhead, ingredients, and reviews.
-      </p>
-      <p style="margin-bottom:2em;">Below you see each theme plotted with how strongly it matched your query.</p>
-      <hr style="margin-bottom:2em;">`;
-      Object.entries(content).forEach(([field, data]) => {
-        const title = field.charAt(0).toUpperCase() + field.slice(1);
-        html += `
-        <h4 style="margin-top:1.5em;">${title}</h4>
-        <p style="font-style:italic;margin-bottom:0.5em;">Themes: ${data.themes.join(', ')}</p>
-        <canvas id="chart-${id}-${field}" width="300" height="300" style="max-width:100%;"></canvas>`;
+      let html = "";
+      Object.entries(content).forEach(([field,data])=>{
+        const label = field.charAt(0).toUpperCase()+field.slice(1);
+        html += `<h4>${label}</h4>
+        <canvas id="chart-${id}-${field}" width="300" height="300"></canvas>`;
       });
       document.getElementById("popup-content").innerHTML = html;
       document.getElementById("popup-modal").style.display = "flex";
-      Object.entries(content).forEach(([field, data]) => {
+      Object.entries(content).forEach(([field,data])=>{
         const ctx = document.getElementById(`chart-${id}-${field}`).getContext('2d');
-        new Chart(ctx, {
-          type: 'radar',
-          data: {
-            labels: data.themes,
-            datasets: [{
-              label: `${field} match`,
-              data: data.scores,
-              fill: true,
-              backgroundColor: 'rgba(209,73,91,0.3)',
-              borderColor: 'rgb(209,73,91)',
-              borderWidth: 2,
-              pointBackgroundColor: 'rgb(209,73,91)',
-              pointBorderColor: '#fff',
-              pointRadius: 5,
-              tension: 0.4
-            }]
-          },
-          options: {
-            elements: { line: { tension: 0.4 } },
-            scales: {
-              r: {
-                pointLabels: { font: { weight: 'bold' } },
-                angleLines: { color: 'rgba(0,0,0,0.05)' },
-                grid: { color: 'rgba(0,0,0,0.05)' },
-                ticks: { backdropColor: 'rgba(255,255,255,0.9)' }
-              }
-            },
-            plugins: { legend: { display: false } }
-          }
+        new Chart(ctx,{
+          type:'radar',
+          data:{labels:data.themes,datasets:[{data:data.scores,fill:true}]},
+          options:{plugins:{legend:{display:false}}}
         });
       });
     }
-    function closePopup() {
-      document.getElementById('popup-modal').style.display = 'none';
+    function closePopup(){document.getElementById('popup-modal').style.display='none'}
+    function openReviewsPopup(id){
+      const rev=reviewsMap[id]||[];
+      let html="";
+      rev.forEach((r,i)=>html+=`<div class="review-row"><strong>${i+1}.</strong> ${r}</div>`);
+      document.getElementById("reviews-content").innerHTML=html;
+      document.getElementById("reviews-modal").style.display="flex";
     }
-    function openReviewsPopup(id) {
-      const reviews = reviewsMap[id];
-      if (!reviews) return;
-      let html = '<div id="reviews-content">';
-      reviews.forEach((item, index) => {
-        const [author, ...rest] = item.split(': ');
-        const text = rest.join(': ');
-        html += `
-        <div class="review-row">
-          <strong>${index + 1}. ${author}</strong>: "${text}"
-        </div>`;
-      });
-      html += '</div>';
-      document.getElementById("reviews-content").innerHTML = html;
-      document.getElementById("reviews-modal").style.display = "flex";
+    function closeReviewsPopup(){document.getElementById('reviews-modal').style.display='none'}
+    function openAddReviewPopup(id,title){
+      currentAddId=id;currentAddTitle=title;
+      document.getElementById('new-review-author').value='';
+      document.getElementById('new-review-text').value='';
+      document.getElementById('add-review-modal').style.display='flex';
     }
-    function closeReviewsPopup() {
-      document.getElementById('reviews-modal').style.display = 'none';
-    }
-    function openAddReviewPopup(id, title) {
-      currentAddId = id;
-      currentAddTitle = title;
-      document.getElementById('new-review-author').value = '';
-      document.getElementById('new-review-text').value = '';
-      document.getElementById('add-review-modal').style.display = 'flex';
-    }
-    function closeAddReviewPopup() {
-      document.getElementById('add-review-modal').style.display = 'none';
-    }
-    document.getElementById('submit-review').addEventListener('click', () => {
-      const author = document.getElementById('new-review-author').value.trim();
-      const text = document.getElementById('new-review-text').value.trim();
-      if (!author || !text) return alert('Please fill both fields.');
-      fetch('/add_review', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ safeId: currentAddId, title: currentAddTitle, author, text })
-      })
-      .then(r => r.json())
-      .then(resp => {
-        if (resp.status === 'success') {
-          reviewsMap[currentAddId].push(`${author}: ${text}`);
+    function closeAddReviewPopup(){document.getElementById('add-review-modal').style.display='none'}
+    document.getElementById('submit-review').addEventListener('click',()=>{
+      const a=document.getElementById('new-review-author').value.trim();
+      const t=document.getElementById('new-review-text').value.trim();
+      if(!a||!t)return alert('Fill both fields');
+      fetch('/add_review',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({safeId:currentAddId,title:currentAddTitle,author:a,text:t})
+      }).then(r=>r.json()).then(resp=>{
+        if(resp.status==='success'){
+          reviewsMap[currentAddId].push(`${a}: ${t}`);
           closeAddReviewPopup();
           openReviewsPopup(currentAddId);
-        } else {
-          alert('Error adding review.');
-        }
+        }else alert('Error');
       });
     });
-    function fetchFlavors() {
-      const query = document.getElementById("search-input").value.trim();
-      const inResultsMode = document.body.classList.contains('results-mode');
-      const rating = inResultsMode
-        ? document.querySelector('input[name="rating-filter-2"]:checked').value
-        : document.querySelector('input[name="rating-filter"]:checked').value;
-      const selector = inResultsMode
-        ? 'input[name="allergy-2"]:checked'
-        : 'input[name="allergy"]:checked';
-      const allergies = Array.from(document.querySelectorAll(selector)).map(cb => cb.value);
-      if (!query) {
-        alert("Please enter a flavor.");
-        return;
-      }
+    function fetchFlavors(){
+      const q=document.getElementById("search-input").value.trim();
+      if(!q)return alert("Enter a flavor");
       clearResults();
-      if (firstSearch) {
-        const initialRating = document.querySelector('input[name="rating-filter"]:checked').value;
-        const copyRating = document.querySelector(`input[name="rating-filter-2"][value="${initialRating}"]`);
-        if (copyRating) copyRating.checked = true;
-        document.querySelectorAll('input[name="allergy"]').forEach(cb => {
-          const copyAllergy = document.querySelector(`input[name="allergy-2"][value="${cb.value}"]`);
-          if (copyAllergy) copyAllergy.checked = cb.checked;
-        });
+      if(firstSearch){
         document.body.classList.replace('initial-mode','results-mode');
-        firstSearch = false;
+        firstSearch=false;
       }
-      fetch("/flavors?" + new URLSearchParams({
-        title: query,
-        min_rating: rating,
-        allergies: allergies.join(',')
-      }))
-      .then(r => r.json())
-      .then(data => {
-        const box = document.getElementById("answer-box");
-        if (data.length) {
-          document.getElementById("results-title").style.display = "block";
-          data.forEach(r => {
-            explanationMap[r.safeId] = r.explanation;
-            reviewsMap[r.safeId] = r.reviews;
-            box.insertAdjacentHTML('beforeend',
-              answerBoxTemplate(
-                r.safeId,
-                r.brand,
-                r.title,
-                r.description,
-                r.ingredients_y,
-                r.rating,
-                r.composite_score
-              )
-            );
+      const rating=document.querySelector('input[name="rating-filter"]:checked').value;
+      const allergies=Array.from(document.querySelectorAll('input[name="allergy"]:checked')).map(cb=>cb.value);
+      fetch("/flavors?"+new URLSearchParams({title:q,min_rating:rating,allergies:allergies.join(',')}))
+      .then(r=>r.json()).then(data=>{
+        const box=document.getElementById("answer-box");
+        if(data.length){
+          document.getElementById("results-title").style.display="block";
+          data.forEach(r=>{
+            explanationMap[r.safeId]=r.explanation;
+            reviewsMap[r.safeId]=r.reviews;
+            box.insertAdjacentHTML('beforeend',answerBoxTemplate(r.safeId,r.brand,r.title,r.description,r.ingredients_y,r.rating,r.composite_score));
           });
-        } else {
-          box.innerHTML = "<p>No results found.</p>";
-        }
+        } else box.innerHTML="<p>No results found.</p>";
       });
     }
-    document.getElementById('search-input').addEventListener('input', clearResults);
-    document.querySelectorAll('input[name="rating-filter"]').forEach(r => r.addEventListener('change', clearResults));
-    document.querySelectorAll('input[name="rating-filter-2"]').forEach(r => r.addEventListener('change', clearResults));
-    document.querySelectorAll('input[name="allergy"]').forEach(cb => cb.addEventListener('change', clearResults));
-    document.querySelectorAll('input[name="allergy-2"]').forEach(cb => cb.addEventListener('change', clearResults));
-    document.getElementById('search-button').addEventListener('click', fetchFlavors);
-
-    function toggleWishlist(id, brand, title) {
-      const heartEl = document.querySelector(`.heart-icon[data-id="${id}"]`);
-      const wishListContainer = document.getElementById('wishlist');
-      const existingItem = document.getElementById(`wl-item-${id}`);
-      if (!existingItem) {
-        heartEl.classList.remove('fa-regular');
-        heartEl.classList.add('fa-solid', 'favorited');
-        const li = document.createElement('li');
-        li.id = `wl-item-${id}`;
-        li.innerHTML = `
-          <span>${brand} ${title}</span>
-          <i class="fa-solid fa-xmark remove-icon" onclick="toggleWishlist('${id}')"></i>
-        `;
-        wishListContainer.appendChild(li);
-      } else {
-        heartEl.classList.remove('fa-solid', 'favorited');
-        heartEl.classList.add('fa-regular');
-        existingItem.remove();
-      }
-    }
-
-    document.getElementById('answer-box').addEventListener('click', function(e) {
-      if (e.target.classList.contains('heart-icon')) {
-        const el = e.target;
-        toggleWishlist(el.dataset.id, el.dataset.brand, el.dataset.title);
+    ['input','change'].forEach(evt=>{
+      document.getElementById('search-input').addEventListener('input',clearResults);
+      document.getElementById('search-button').addEventListener('click',fetchFlavors);
+    });
+    document.getElementById('allergy-toggle').addEventListener('click',()=>document.querySelector('.dropdown-content').classList.toggle('show'));
+    document.body.addEventListener('click',e=>{if(!e.target.matches('#allergy-toggle'))document.querySelector('.dropdown-content').classList.remove('show');});
+    document.getElementById('answer-box').addEventListener('click',e=>{
+      if(e.target.classList.contains('heart-icon')){
+        const el=e.target; toggleWishlist(el.dataset.id,el.dataset.brand,el.dataset.title);
       }
     });
-
-    function goHome() {
-      window.location.reload();
+    function toggleWishlist(id,brand,title){
+      const heart=document.querySelector(`.heart-icon[data-id="${id}"]`);
+      const ul=document.getElementById('wishlist');
+      const item=document.getElementById(`wl-item-${id}`);
+      if(!item){
+        heart.classList.replace('fa-regular','fa-solid');
+        const li=document.createElement('li');
+        li.id=`wl-item-${id}`;
+        li.innerHTML=`<span>${brand} ${title}</span><i class="fa-solid fa-xmark remove-icon" onclick="toggleWishlist('${id}')"></i>`;
+        ul.appendChild(li);
+      } else {
+        heart.classList.replace('fa-solid','fa-regular');
+        item.remove();
+      }
     }
-    document.getElementById('home-logo').addEventListener('click', goHome);
-    document.getElementById('home-logo-small').addEventListener('click', goHome);
-    document.getElementById('home-title').addEventListener('click', goHome);
+    function goHome(){window.location.reload();}
+    ['home-logo','home-logo-small','home-title'].forEach(id=>document.getElementById(id).addEventListener('click',goHome));
   </script>
 </body>
 </html>
